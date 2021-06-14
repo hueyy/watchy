@@ -102,15 +102,18 @@ void Prose::drawBattery()
 
   uint8_t xpos = 85;
 
-  display.drawBitmap(xpos, 173, battery, 37, 21, GxEPD_BLACK);
+  // display.drawBitmap(xpos, 173, battery, 37, 21, GxEPD_BLACK);
   display.setCursor(xpos + 45, 190);
   display.print(batStr + "%");
 }
 
 void Prose::drawSteps()
 {
-  uint32_t stepCount = sensor.getCounter();
-  display.drawBitmap(5, 171, steps, 19, 23, GxEPD_BLACK);
-  display.setCursor(35, 190);
-  display.println(stepCount);
+  uint32_t distanceWalked = getDistanceWalked();
+  display.drawBitmap(5, 169, steps, 19, 23, GxEPD_BLACK);
+  display.setCursor(32, 190);
+
+  String stepStr = distanceWalked >= 1000 ? String((float)((distanceWalked * 10) / 10000)) + "km" : String(distanceWalked) + "m";
+
+  display.println(stepStr);
 }

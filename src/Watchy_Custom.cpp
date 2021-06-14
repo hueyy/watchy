@@ -43,3 +43,9 @@ uint8_t WatchyCustom::getBattery()
   percentage = max((uint8_t)0, percentage);
   return percentage;
 }
+
+uint32_t WatchyCustom::getDistanceWalked()
+{
+  uint32_t stepCount = sensor.getCounter();
+  return (uint32_t)((float)stepCount * STEP_LENGTH);
+}
