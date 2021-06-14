@@ -47,7 +47,7 @@ void Prose::drawTime()
   else if (currentTime.Minute < 10)
   {
     display.print("oh ");
-    display.print(minute_singles[currentTime.Minute]);
+    display.print(minute_singles[currentTime.Minute - 1]);
   }
   else if (currentTime.Minute < 20)
   {
@@ -113,7 +113,9 @@ void Prose::drawSteps()
   display.drawBitmap(5, 169, steps, 19, 23, GxEPD_BLACK);
   display.setCursor(32, 190);
 
-  String stepStr = distanceWalked >= 1000 ? String((float)((distanceWalked * 10) / 10000)) + "km" : String(distanceWalked) + "m";
+  String stepStr = distanceWalked >= 1000
+                       ? String((float)((distanceWalked * 10) / 10000)) + "km"
+                       : String(distanceWalked) + "m";
 
   display.println(stepStr);
 }
