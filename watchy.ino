@@ -1,7 +1,7 @@
 // #include "Cluckent.h"
 // Cluckent watchy;
 
-#include "Prose.h"
+#include "src/Prose/Prose.h"
 Prose watchy;
 
 void setup()

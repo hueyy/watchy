@@ -1,5 +1,7 @@
 # Watchy
 
+The source code for my [Watchy](https://watchy.sqfmi.com/).
+
 ## Setup
 
 ### Arduino IDE
@@ -10,7 +12,15 @@
 4. Set board to `ESP32 Dev Module`
 5. Set Partition Scheme to `Minimal SPIFFS`
 
-### PlatformIO
+### VSCode
+
+#### Arduino for VSCode
+
+[Get the extension](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.vscode-arduino).
+
+Follow the steps for Arduino above and set `arduino.path` to the folder containing your Arduino binary, possibly `/usr/local/bin`.
+
+#### PlatformIO
 
 TODO
 
@@ -18,4 +28,3 @@ TODO
 
 - [Fonts](https://rop.nl/truetype2gfx/)
 - [Images](https://javl.github.io/image2cpp/)
-

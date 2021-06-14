@@ -2,7 +2,7 @@
 #define CLUCKENT_H
 
 #include <Watchy.h>
-#include "assets/cluckent_fanart.h"
+#include "../assets/cluckent_fanart.h"
 
 class Cluckent : public Watchy
 {
