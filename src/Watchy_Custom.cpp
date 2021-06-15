@@ -47,5 +47,5 @@ uint8_t WatchyCustom::getBattery()
 uint32_t WatchyCustom::getDistanceWalked()
 {
   uint32_t stepCount = sensor.getCounter();
-  return (uint32_t)((float)stepCount * STEP_LENGTH);
+  return (stepCount * STEP_LENGTH);
 }

@@ -4,7 +4,7 @@
 #include <Watchy.h>
 
 #define BATTERY_OFFSET 0.105
-#define STEP_LENGTH 0.45 // metres
+#define STEP_LENGTH 45 // cm
 
 class WatchyCustom : public Watchy
 {

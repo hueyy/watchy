@@ -6,7 +6,7 @@
 #include "../assets/Helvetica25pt7b.h"
 #include "../assets/Helvetica20pt7b.h"
 #include "../assets/Helvetica14pt7b.h"
-#include "../assets/icons.h"
+// #include "../assets/icons.h"
 
 class Prose : public WatchyCustom
 {

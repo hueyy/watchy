@@ -85,7 +85,7 @@ void Prose::drawDate()
   String dayOfWeek = dayShortStr(currentTime.Wday);
   char *dateStr;
   asprintf(&dateStr, "%s, %d %s", dayOfWeek.c_str(), currentTime.Day, monthStr.c_str());
-  display.setCursor(0, 150);
+  display.setCursor(0, 160);
   display.print(dateStr);
   free(dateStr);
 }
@@ -110,12 +110,12 @@ void Prose::drawBattery()
 void Prose::drawSteps()
 {
   uint32_t distanceWalked = getDistanceWalked();
-  display.drawBitmap(5, 169, steps, 19, 23, GxEPD_BLACK);
-  display.setCursor(32, 190);
+  // display.drawBitmap(5, 169, steps, 19, 23, GxEPD_BLACK);
+  display.setCursor(0, 190);
 
-  String stepStr = distanceWalked >= 1000
-                       ? String((float)((distanceWalked * 10) / 10000)) + "km"
-                       : String(distanceWalked) + "m";
+  String stepStr = distanceWalked >= (1000 * 100)
+                       ? String((float)(distanceWalked * 100) / 10000000) + "km"
+                       : String(distanceWalked / 100) + "m";
 
   display.println(stepStr);
 }
