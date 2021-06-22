@@ -1,0 +1,11 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define BLE_DEVICE_NAME ""
+
+#define WIFI_AP_SSID ""
+
+#define DISPLAY_WIDTH 200
+#define DISPLAY_HEIGHT 200
+
+#endif

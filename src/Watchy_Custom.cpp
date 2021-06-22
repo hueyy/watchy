@@ -1,5 +1,9 @@
 #include "Watchy_Custom.h"
 
+RTC_DATA_ATTR bool dark_mode = false;
+
+RTC_DATA_ATTR MSSWeatherData currentMSSWeather;
+
 WatchyCustom::WatchyCustom() {}
 
 void WatchyCustom::drawHelperGrid()
@@ -48,4 +52,53 @@ uint32_t WatchyCustom::getDistanceWalked()
 {
   uint32_t stepCount = sensor.getCounter();
   return (stepCount * STEP_LENGTH);
+}
+
+void WatchyCustom::vibrate(uint8_t times, uint32_t delay_duration)
+{
+  sensor.enableFeature(BMA423_WAKEUP, false);
+
+  pinMode(VIB_MOTOR_PIN, OUTPUT);
+  for (uint8_t i = 0; i < times; i++)
+  {
+    delay(delay_duration);
+    digitalWrite(VIB_MOTOR_PIN, true);
+    delay(delay_duration);
+    digitalWrite(VIB_MOTOR_PIN, false);
+  }
+
+  sensor.enableFeature(BMA423_WAKEUP, true);
+}
+
+MSSWeatherData WatchyCustom::getMSSWeatherData()
+{
+  if (connectWifi())
+  {
+    HTTPClient http;
+    http.setConnectTimeout(5000);
+    String mssQueryURL = String(MSS_24H_API_URL);
+    http.begin(mssQueryURL.c_str());
+    int httpResponseCode = http.GET();
+    if (httpResponseCode == = 200)
+    {
+      String payload = http.getString();
+      JSONVar responseObject = JSON.parse(payload);
+      currentMSSWeather.forecast = String(
+          responseObject["main_forecast"]);
+      char *lastFetched;
+      asprintf(
+          &lastFetched,
+          "%d:%d %d/%d/%d",
+          currentTime.Hour,
+          currentTime.Minute,
+          currentTime.Day,
+          currentTime.Month,
+          currentTime.Year);
+      currentMSSWeather.lastFetched = String(lastFetched);
+    }
+    http.end();
+    WiFi.mode(WIFI_OFF);
+    btStop();
+  }
+  return currentMSSWeather;
 }
