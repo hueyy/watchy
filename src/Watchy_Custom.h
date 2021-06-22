@@ -2,11 +2,15 @@
 #define WATCHY_BASE_H
 
 #include <Watchy.h>
+#include <WiFiManager.h>
 
 // include variables from config.h if it exists
-#if __has_include("config.h") && __has_include(<stdint.h>)
-#include "config.h"
-#endif
+// #if __has_include("./config.h") && __has_include(<stdint.h>)
+#include "./config.h"
+// #endif
+
+#define WIFI_SSID "SINGTEL-311A"
+#define WIFI_PASS "eishahweaz"
 
 #define BATTERY_OFFSET 0.105
 #define STEP_LENGTH 45 // cm
@@ -54,6 +58,8 @@ public:
   uint8_t getBattery();
   uint32_t getDistanceWalked();
   void vibrate(uint8_t times, uint32_t delay);
+  bool attemptWiFiConnection();
+  bool connectWiFi();
   MSSWeatherData getMSSWeatherData();
 };
 

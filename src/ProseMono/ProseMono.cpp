@@ -84,7 +84,7 @@ void ProseMono::drawDate()
   String monthStr = monthShortStr(currentTime.Month);
   String dayOfWeek = dayShortStr(currentTime.Wday);
   char *dateStr;
-  asprintf(&dateStr, "%s, %d %s", dayOfWeek.c_str(), currentTime.Day, monthStr.c_str());
+  asprintf(&dateStr, "%s, %d %s", dayOfWeek.c_str(), currentTime.Day, monthStr.c_str());
   display.setCursor(0, 160);
   display.print(dateStr);
   free(dateStr);

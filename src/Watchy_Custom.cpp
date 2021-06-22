@@ -70,21 +70,55 @@ void WatchyCustom::vibrate(uint8_t times, uint32_t delay_duration)
   sensor.enableFeature(BMA423_WAKEUP, true);
 }
 
+bool WatchyCustom::attemptWiFiConnection()
+{
+  if (WL_CONNECTED == WiFi.waitForConnectResult())
+  { //attempt to connect for 10s
+    return true;
+  }
+  else
+  { //connection failed, time out
+
+    //turn off radios
+    WiFi.mode(WIFI_OFF);
+    btStop();
+
+    return false;
+  }
+}
+
+bool WatchyCustom::connectWiFi()
+{
+  if (WL_CONNECT_FAILED == WiFi.begin(WIFI_SSID, WIFI_PASS))
+  {
+    WIFI_CONFIGURED = attemptWiFiConnection();
+  }
+  if (WL_CONNECT_FAILED == WiFi.begin())
+  { // WiFi not setup, you can also use hard coded credentials with WiFi.begin(SSID,PASS);
+
+    WIFI_CONFIGURED = false;
+  }
+  else
+  {
+    WIFI_CONFIGURED = attemptWiFiConnection();
+  }
+  return WIFI_CONFIGURED;
+}
+
 MSSWeatherData WatchyCustom::getMSSWeatherData()
 {
-  if (connectWifi())
+  if (connectWiFi())
   {
     HTTPClient http;
     http.setConnectTimeout(5000);
     String mssQueryURL = String(MSS_24H_API_URL);
     http.begin(mssQueryURL.c_str());
     int httpResponseCode = http.GET();
-    if (httpResponseCode == = 200)
+    if (httpResponseCode == 200)
     {
       String payload = http.getString();
       JSONVar responseObject = JSON.parse(payload);
-      currentMSSWeather.forecast = String(
-          responseObject["main_forecast"]);
+      currentMSSWeather.forecast = responseObject["main_forecast"];
       char *lastFetched;
       asprintf(
           &lastFetched,
