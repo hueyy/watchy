@@ -19,6 +19,7 @@ void Prose::drawTime()
   const uint8_t left_padding = 0;
   const uint8_t top_padding = 35;
   const uint8_t line_spacing = 18;
+  const uint8_t second_line_padding = 5;
   const char *hours[12] = {"twelve", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven"};
   const char *minute_singles[10] = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine"};
   const char *minute_teens[10] = {"ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"};
@@ -39,7 +40,9 @@ void Prose::drawTime()
   // minutes
   lines++;
   display.setFont(&Helvetica20pt7b);
-  display.setCursor(left_padding, top_padding + lines * (normal_line_height + line_spacing));
+  display.setCursor(
+      left_padding,
+      top_padding + lines * (normal_line_height + line_spacing) + second_line_padding);
   if (currentTime.Minute == 0)
   {
     display.print("o'clock");
@@ -59,7 +62,9 @@ void Prose::drawTime()
     if (currentTime.Minute % 10 != 0)
     {
       lines++;
-      display.setCursor(left_padding, top_padding + lines * (normal_line_height + line_spacing));
+      display.setCursor(
+          left_padding,
+          top_padding + lines * (normal_line_height + line_spacing) + second_line_padding);
       display.print(minute_singles[(currentTime.Minute % 10) - 1]);
     }
   }
@@ -72,7 +77,9 @@ void Prose::drawTime()
   else if (lines == 1)
   {
     lines++;
-    display.setCursor(left_padding, top_padding + lines * (normal_line_height + line_spacing));
+    display.setCursor(
+        left_padding,
+        top_padding + lines * (normal_line_height + line_spacing) + second_line_padding);
   }
   display.print(is_am ? "am" : "pm");
 }
@@ -80,11 +87,11 @@ void Prose::drawTime()
 void Prose::drawDate()
 {
   display.setTextColor(GxEPD_BLACK);
-  display.setFont(&Helvetica20pt7b);
+  display.setFont(&Helvetica18pt7b);
   String monthStr = monthShortStr(currentTime.Month);
   String dayOfWeek = dayShortStr(currentTime.Wday);
   char *dateStr;
-  asprintf(&dateStr, "%s, %d %s", dayOfWeek.c_str(), currentTime.Day, monthStr.c_str());
+  asprintf(&dateStr, "%s, %d %s", dayOfWeek.c_str(), currentTime.Day, monthStr.c_str());
   display.setCursor(0, 160);
   display.print(dateStr);
   free(dateStr);
