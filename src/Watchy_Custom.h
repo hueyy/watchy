@@ -8,6 +8,7 @@
 
 #include "./assets/icons.h"
 #include "./assets/logo_mss.h"
+#include "./assets/zzz.h"
 
 #include "./assets/fonts/Helvetica_Bold25pt7b.h"
 #include "./assets/fonts/Helvetica25pt7b.h"
@@ -71,10 +72,15 @@ public:
   void printCentered(uint16_t y, String text);
   void printRight(uint16_t y, String text);
 
+  void showWatchFace(bool partialRefresh);
+  void drawWatchFace();
+  bool disableWatchFace();
+
   uint8_t getBattery();
   uint32_t getDistanceWalked();
 
   void vibrate(uint8_t times, uint32_t delay);
+  void vibrateTime();
   bool connectWiFi();
   void disconnectWiFi();
 

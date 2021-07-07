@@ -13,6 +13,11 @@ String zeroPad(uint8_t inputNum)
 
 void BigTime::drawWatchFace()
 {
+  WatchyCustom::drawWatchFace();
+  if (disableWatchFace())
+  {
+    return;
+  }
 
   uint8_t bigfont_height = 40;
   uint8_t smallfont_height = 18;

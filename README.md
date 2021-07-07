@@ -4,6 +4,16 @@ The source code for my [Watchy](https://watchy.sqfmi.com/).
 
 The config file (`src/config.h`) is encrypted with [`git-secret`](https://git-secret.io/). Copy `src/config.h.sample` to `src/config.h` and make your own.
 
+## Features
+
+### Buttons
+
+- Top-Right: `vibrateTime` so you can tell the time in the dark. Vibrates for 100ms for every hour and then 200ms for every quarter-hour, rounded up.
+
+### Others
+
+- Static sleep screen between 12am-6am (customisable) to conserve power. Interruptible on button press.
+
 ## Setup
 
 ### Arduino IDE
@@ -28,7 +38,7 @@ TODO
 
 ## Development
 
-It is probably wise to design a watchface in Paint.NET / Photoshop first before writing the display code because of the long feedback loop. There's no hot reload 😢.
+It is probably wise to design a watchface in Paint.NET / Photoshop first before writing the display code because of the long feedback loop. There's no hot reloading 😢.
 
 - [Fonts](https://rop.nl/truetype2gfx/)
 - [Images](https://javl.github.io/image2cpp/)

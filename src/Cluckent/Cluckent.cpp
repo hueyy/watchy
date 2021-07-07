@@ -4,6 +4,12 @@ Cluckent::Cluckent() {}
 
 void Cluckent::drawWatchFace()
 {
+    WatchyCustom::drawWatchFace();
+    if (disableWatchFace())
+    {
+        return;
+    }
+
     display.fillScreen(GxEPD_BLACK);
     display.drawBitmap(0, 0, cluckent_fanart, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
     display.setTextColor(GxEPD_BLACK);
