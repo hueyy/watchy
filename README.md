@@ -28,5 +28,7 @@ TODO
 
 ## Development
 
+It is probably wise to design a watchface in Paint.NET / Photoshop first before writing the display code because of the long feedback loop. There's no hot reload 😢.
+
 - [Fonts](https://rop.nl/truetype2gfx/)
 - [Images](https://javl.github.io/image2cpp/)
