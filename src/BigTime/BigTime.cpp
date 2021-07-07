@@ -24,20 +24,22 @@ void BigTime::drawWatchFace()
 
   String hourString = zeroPad(currentTime.Hour);
   String minuteString = zeroPad(currentTime.Minute);
-  display.setCursor(0, bigfont_height + 55);
+  display.setCursor(0, bigfont_height + 45);
   display.print(hourString + ":" + minuteString);
 
-  display.setCursor(25, 130 + bigfont_height);
+  display.setCursor(25, 125 + bigfont_height);
   String dayString = zeroPad(currentTime.Day);
   display.print(dayString);
 
-  String dayOfWeek = dayShortStr(currentTime.Wday).toUpperCase();
-  String monthStr = monthShortStr(currentTime.Month).toUpperCase();
+  String dayOfWeek = dayShortStr(currentTime.Wday);
+  String monthStr = monthShortStr(currentTime.Month);
+  dayOfWeek.toUpperCase();
+  monthStr.toUpperCase();
   display.setFont(&iosevka_medium18pt7b);
 
-  display.setCursor(110, 122 + smallfont_height);
+  display.setCursor(110, 117 + smallfont_height);
   display.print(monthStr);
 
-  display.setCursor(110, 153 + smallfont_height);
+  display.setCursor(110, 148 + smallfont_height);
   display.print(dayOfWeek);
 }

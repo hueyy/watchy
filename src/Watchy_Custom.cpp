@@ -1,6 +1,7 @@
 #include "Watchy_Custom.h"
 
 RTC_DATA_ATTR bool dark_mode = false;
+RTC_DATA_ATTR bool DEBUG_MODE = true;
 
 RTC_DATA_ATTR MSSWeatherData currentMSSWeather;
 
@@ -8,6 +9,11 @@ WatchyCustom::WatchyCustom() {}
 
 void WatchyCustom::init(String datetime)
 {
+  if (DEBUG_MODE)
+  {
+    Serial.begin(115200);
+  }
+
   esp_sleep_wakeup_cause_t wakeup_reason;
   wakeup_reason = esp_sleep_get_wakeup_cause(); //get wake up reason
   Wire.begin(SDA, SCL);                         //init i2c
@@ -248,27 +254,31 @@ void WatchyCustom::vibrate(uint8_t times, uint32_t delay_duration)
 bool WatchyCustom::connectWiFi()
 {
   int remaining_tries = 3;
-  while(remaining_tries > 0){
+  while (remaining_tries > 0)
+  {
 
     WIFI_CONFIGURED = false;
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     WIFI_CONFIGURED = (WiFi.waitForConnectResult() == WL_CONNECTED);
 
-    if(!WIFI_CONFIGURED){
+    if (!WIFI_CONFIGURED)
+    {
       WiFi.begin();
       WIFI_CONFIGURED = (WiFi.waitForConnectResult() == WL_CONNECTED);
     }
 
-    if(WIFI_CONFIGURED){
+    if (WIFI_CONFIGURED)
+    {
       break;
     }
     remaining_tries--;
   }
-  
+
   return WIFI_CONFIGURED;
 }
 
-void WatchyCustom::disconnectWiFi(){
+void WatchyCustom::disconnectWiFi()
+{
   WIFI_CONFIGURED = false;
   WiFi.disconnect();
   WiFi.mode(WIFI_OFF);
@@ -323,33 +333,37 @@ void WatchyCustom::showMSSWeather()
   const uint8_t line_height = 20;
 
   MSSWeatherData currentWeather = getMSSWeatherData();
-  if(currentMSSWeather.forecast.length() > 0){
+  if (currentMSSWeather.forecast.length() > 0)
+  {
     display.setCursor(left_padding, top_padding);
-    if(currentMSSWeather.main == "TL"){
+    if (currentMSSWeather.main == "TL")
+    {
       display.drawBitmap(left_padding, top_padding, rain, 48, 32, GxEPD_WHITE);
     }
     display.setCursor(50, top_padding);
     char *tempString;
-        asprintf(
-            &tempString,
-            "%d - %d °C",
-            currentWeather.highestTemp,
-            currentWeather.lowestTemp);
+    asprintf(
+        &tempString,
+        "%d - %d °C",
+        currentWeather.highestTemp,
+        currentWeather.lowestTemp);
     display.println(tempString);
     // display.setCursor(10, 30);
     // display.println(currentWeather.forecast);
-  } else {
+  }
+  else
+  {
     display.setCursor(left_padding, top_padding);
     display.print("Fetching data…");
     display.setCursor(left_padding, top_padding + line_height * 2);
     char *wifiString;
-        asprintf(
-            &wifiString,
-            "WiFi: %s",
-            WIFI_CONFIGURED ? "working" : "!working");
+    asprintf(
+        &wifiString,
+        "WiFi: %s",
+        WIFI_CONFIGURED ? "working" : "!working");
     display.print(wifiString);
   }
-  
+
   display.drawBitmap(left_padding, 125, logo_mss, 80, 73, GxEPD_BLACK);
 
   display.display(false);
@@ -366,7 +380,9 @@ void WatchyCustom::handleButtonPress()
   {
     vibrate(1, 100);
     showMSSWeather();
-  } else if (guiState == CUSTOM_APP_STATE) {
+  }
+  else if (guiState == CUSTOM_APP_STATE)
+  {
     if (wakeupBit & BACK_BTN_MASK)
     { // return to watch face
       RTC.read(currentTime);
