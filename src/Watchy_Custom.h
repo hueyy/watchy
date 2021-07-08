@@ -77,6 +77,7 @@ public:
   bool disableWatchFace();
 
   uint8_t getBattery();
+  uint8_t getBatteryLevel();
   uint32_t getDistanceWalked();
 
   void vibrate(uint8_t times, uint32_t delay);

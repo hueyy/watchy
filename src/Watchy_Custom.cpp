@@ -45,19 +45,22 @@ void WatchyCustom::init(String datetime)
     if (guiState == WATCHFACE_STATE)
     {
       RTC.read(currentTime);
-      if(currentTime.Hour == SLEEP_HOUR_START && currentTime.Minute == SLEEP_MINUTE_START){
+      if (currentTime.Hour == SLEEP_HOUR_START && currentTime.Minute == SLEEP_MINUTE_START)
+      {
         sleep_mode = true;
         RTC.alarmInterrupt(ALARM_2, false);
       }
-      if(currentTime.Hour == SLEEP_HOUR_END && currentTime.Minute == SLEEP_MINUTE_END){
+      if (currentTime.Hour == SLEEP_HOUR_END && currentTime.Minute == SLEEP_MINUTE_END)
+      {
         sleep_mode = false;
-        RTC.alarmInterrupt(ALARM_2, false);
+        RTC.alarmInterrupt(ALARM_2, true);
       }
       showWatchFace(true); //partial updates on tick
     }
     break;
   case ESP_SLEEP_WAKEUP_EXT1: //button Press
-    if(sleep_mode){
+    if (sleep_mode)
+    {
       sleep_mode = false;
       RTC.alarmInterrupt(ALARM_2, true);
       RTC.alarm(ALARM_2);
@@ -78,7 +81,8 @@ void WatchyCustom::init(String datetime)
   deepSleep();
 }
 
-void WatchyCustom::showWatchFace(bool partialRefresh){
+void WatchyCustom::showWatchFace(bool partialRefresh)
+{
   display.init(0, false); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
   drawWatchFace();
@@ -87,14 +91,17 @@ void WatchyCustom::showWatchFace(bool partialRefresh){
   guiState = WATCHFACE_STATE;
 }
 
-void WatchyCustom::drawWatchFace(){
-  if(sleep_mode){
+void WatchyCustom::drawWatchFace()
+{
+  if (sleep_mode)
+  {
     display.drawBitmap(0, 0, zzz_image, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
     return;
   }
 }
 
-bool WatchyCustom::disableWatchFace(){
+bool WatchyCustom::disableWatchFace()
+{
   return sleep_mode;
 }
 
@@ -269,6 +276,29 @@ uint8_t WatchyCustom::getBattery()
   return percentage;
 }
 
+uint8_t WatchyCustom::getBatteryLevel()
+{
+  // from 1 - 4
+  float voltage = getBatteryVoltage();
+
+  if (voltage > 4.1)
+  {
+    return 4;
+  }
+  else if (voltage > 3.95)
+  {
+    return 3;
+  }
+  else if (voltage > 3.80)
+  {
+    return 2;
+  }
+  else
+  {
+    return 1;
+  }
+}
+
 uint32_t WatchyCustom::getDistanceWalked()
 {
   uint32_t stepCount = sensor.getCounter();
@@ -294,8 +324,8 @@ void WatchyCustom::vibrate(uint8_t times, uint32_t delay_duration)
 void WatchyCustom::vibrateTime()
 {
   uint8_t twelveHour = currentTime.Hour > 12
-    ? currentTime.Hour - 12
-    : currentTime.Hour;
+                           ? currentTime.Hour - 12
+                           : currentTime.Hour;
   vibrate(twelveHour, 100);
 
   uint8_t quarterHour = currentTime.Minute / 15;

@@ -12,7 +12,7 @@ The config file (`src/config.h`) is encrypted with [`git-secret`](https://git-se
 
 ### Others
 
-- Static sleep screen between 12am-6am (customisable) to conserve power. Interruptible on button press.
+- Static sleep screen between 12am-6am (customisable) to conserve power. Interruptable on button press.
 
 ## Setup
 
@@ -38,7 +38,9 @@ TODO
 
 ## Development
 
-It is probably wise to design a watchface in Paint.NET / Photoshop first before writing the display code because of the long feedback loop. There's no hot reloading 😢.
+It is probably wise to design a watchface in Paint.NET / Photoshop first before writing the display code because of the long feedback loop. There's no hot reloading 😢. The screen is 200px x 200px and the DPI is 141.
 
 - [Fonts](https://rop.nl/truetype2gfx/)
 - [Images](https://javl.github.io/image2cpp/)
+
+The docs for the display library can be found [here](https://learn.adafruit.com/adafruit-gfx-graphics-library/overview).

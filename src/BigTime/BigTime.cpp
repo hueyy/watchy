@@ -19,6 +19,12 @@ void BigTime::drawWatchFace()
     return;
   }
 
+  drawTime();
+  drawBattery();
+}
+
+void BigTime::drawTime()
+{
   uint8_t bigfont_height = 40;
   uint8_t smallfont_height = 18;
 
@@ -32,8 +38,9 @@ void BigTime::drawWatchFace()
   display.setCursor(0, bigfont_height + 45);
   display.print(hourString + ":" + minuteString);
 
-  display.setCursor(25, 125 + bigfont_height);
+  display.setCursor(30, 125 + bigfont_height);
   String dayString = zeroPad(currentTime.Day);
+  display.setFont(&iosevka_light40pt7b);
   display.print(dayString);
 
   String dayOfWeek = dayShortStr(currentTime.Wday);
@@ -47,4 +54,21 @@ void BigTime::drawWatchFace()
 
   display.setCursor(110, 148 + smallfont_height);
   display.print(dayOfWeek);
+}
+
+void BigTime::drawBattery()
+{
+  uint8_t batteryLevel = WatchyCustom::getBatteryLevel();
+  uint8_t segment_height = 3;
+  uint8_t segment_width = 40;
+  uint8_t spacing = 10;
+  for (uint8_t batterySegments = 0; batterySegments < batteryLevel; batterySegments++)
+  {
+    display.fillRect(
+        5 + batterySegments * (segment_width + spacing),
+        DISPLAY_HEIGHT - segment_height,
+        segment_width,
+        segment_height,
+        GxEPD_BLACK);
+  }
 }
