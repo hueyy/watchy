@@ -1,5 +1,5 @@
-#ifndef WATCHY_BASE_H
-#define WATCHY_BASE_H
+#ifndef WATCHY_CUSTOM_H
+#define WATCHY_CUSTOM_H
 
 #include <Watchy.h>
 #include <WiFiManager.h>
@@ -10,10 +10,6 @@
 #include "./assets/logo_mss.h"
 #include "./assets/zzz.h"
 
-#include "./assets/fonts/Helvetica_Bold25pt7b.h"
-#include "./assets/fonts/Helvetica25pt7b.h"
-#include "./assets/fonts/Helvetica20pt7b.h"
-#include "./assets/fonts/Helvetica18pt7b.h"
 #include "./assets/fonts/Helvetica14pt7b.h"
 
 #define BATTERY_OFFSET 0.105
@@ -66,15 +62,33 @@ class WatchyCustom : public Watchy
 public:
   WatchyCustom();
 
+  bool isDebugMode();
+  void bumpWatchFaceIndex();
   void init(String datetime = "");
 
   void drawHelperGrid();
   void printCentered(uint16_t y, String text);
   void printRight(uint16_t y, String text);
-
-  void showWatchFace(bool partialRefresh);
+  
   void drawWatchFace();
-  bool disableWatchFace();
+
+  // BigTime
+  void bigTimeDrawWatchFace();
+  void bigTimeDrawTime();
+  void bigTimeDrawBattery();
+
+  // Cluckent
+  void cluckentDrawWatchFace();
+
+  // Prose
+  void proseDrawWatchFace();
+  void proseDrawTime();
+  void proseDrawDate();
+  void proseDrawBattery();
+  void proseDrawSteps();
+
+  void disableWatchFace();
+  bool getSleepMode();
 
   uint8_t getBattery();
   uint8_t getBatteryLevel();
@@ -89,7 +103,6 @@ public:
   void showMSSWeather();
   void handleButtonPress();
 
-private:
   void _rtcConfig(String datetime);
   void _bmaConfig();
   static uint16_t _readRegister(uint8_t address, uint8_t reg, uint8_t *data, uint16_t len);

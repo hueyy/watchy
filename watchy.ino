@@ -7,8 +7,14 @@
 // #include "src/ProseMono/ProseMono.h"
 // ProseMono watchy;
 
-#include "src/BigTime/BigTime.h"
-BigTime watchy;
+// #include "src/BigTime/BigTime.h"
+// BigTime watchy;
+
+// #include "src/Watchy_Main.h"
+// WatchyMain watchy;
+
+#include "src/Watchy_Custom.h"
+WatchyCustom watchy;
 
 void setup()
 {

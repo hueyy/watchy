@@ -6,9 +6,15 @@ The config file (`src/config.h`) is encrypted with [`git-secret`](https://git-se
 
 ## Features
 
+### Watch Faces
+
+- [BigTime](./src/BigTime/README.md) - as the title says
+- [Prose](./src/Prose/README.md) - the time in words
+
 ### Buttons
 
-- Top-Right: `vibrateTime` so you can tell the time in the dark. Vibrates for 100ms for every hour and then 200ms for every quarter-hour, rounded up.
+- Top-Right: `vibrateTime` so you can tell the time in the dark. Vibrates for 100ms for every hour and then 200ms for every quarter-hour. Early is probably better than late so minutes are rounded up to the nearest quarter-hour.
+- Bottom-Right: switch between watch faces
 
 ### Others
 
@@ -44,3 +50,5 @@ It is probably wise to design a watchface in Paint.NET / Photoshop first before 
 - [Images](https://javl.github.io/image2cpp/)
 
 The docs for the display library can be found [here](https://learn.adafruit.com/adafruit-gfx-graphics-library/overview).
+
+- `Watchy_Custom` is a big class containing each watchface as a separate method (or methods), as well as other methods providing other functionality

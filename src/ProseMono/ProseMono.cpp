@@ -4,12 +4,6 @@ ProseMono::ProseMono() {}
 
 void ProseMono::drawWatchFace()
 {
-  WatchyCustom::drawWatchFace();
-  if (disableWatchFace())
-  {
-    return;
-  }
-
   display.fillScreen(GxEPD_WHITE);
 
   drawTime();

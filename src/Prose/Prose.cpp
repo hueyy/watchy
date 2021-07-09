@@ -1,25 +1,21 @@
-#include "Prose.h"
+#include "../Watchy_Custom.h"
 
-Prose::Prose() {}
+#include "../assets/fonts/Helvetica_Bold25pt7b.h"
+#include "../assets/fonts/Helvetica25pt7b.h"
+#include "../assets/fonts/Helvetica20pt7b.h"
+#include "../assets/fonts/Helvetica18pt7b.h"
 
-void Prose::drawWatchFace()
+void WatchyCustom::proseDrawWatchFace()
 {
-  WatchyCustom::drawWatchFace();
-  if (disableWatchFace())
-  {
-    return;
-  }
-
   display.fillScreen(GxEPD_WHITE);
 
-  drawTime();
-  drawDate();
-  // drawHelperGrid();
-  drawBattery();
-  drawSteps();
+  proseDrawTime();
+  proseDrawDate();
+  proseDrawBattery();
+  proseDrawSteps();
 }
 
-void Prose::drawTime()
+void WatchyCustom::proseDrawTime()
 {
   const uint8_t normal_line_height = 20;
   const uint8_t left_padding = 0;
@@ -90,7 +86,7 @@ void Prose::drawTime()
   display.print(is_am ? "am" : "pm");
 }
 
-void Prose::drawDate()
+void WatchyCustom::proseDrawDate()
 {
   display.setTextColor(GxEPD_BLACK);
   display.setFont(&Helvetica18pt7b);
@@ -103,7 +99,7 @@ void Prose::drawDate()
   free(dateStr);
 }
 
-void Prose::drawBattery()
+void WatchyCustom::proseDrawBattery()
 {
   display.setFont(&Helvetica14pt7b);
   display.setTextColor(GxEPD_BLACK);
@@ -120,7 +116,7 @@ void Prose::drawBattery()
   display.print(batStr + "%");
 }
 
-void Prose::drawSteps()
+void WatchyCustom::proseDrawSteps()
 {
   uint32_t distanceWalked = getDistanceWalked();
   // display.drawBitmap(5, 169, steps, 19, 23, GxEPD_BLACK);

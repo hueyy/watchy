@@ -1,6 +1,7 @@
-#include "BigTime.h"
-
-BigTime::BigTime() {}
+#include "../Watchy_Custom.h"
+#include "../assets/fonts/iosevka_bold40pt7b.h"
+#include "../assets/fonts/iosevka_light40pt7b.h"
+#include "../assets/fonts/iosevka_medium18pt7b.h"
 
 String zeroPad(uint8_t inputNum)
 {
@@ -11,19 +12,13 @@ String zeroPad(uint8_t inputNum)
   return String(inputNum);
 }
 
-void BigTime::drawWatchFace()
+void WatchyCustom::bigTimeDrawWatchFace()
 {
-  WatchyCustom::drawWatchFace();
-  if (disableWatchFace())
-  {
-    return;
-  }
-
-  drawTime();
-  drawBattery();
+  bigTimeDrawTime();
+  bigTimeDrawBattery();
 }
 
-void BigTime::drawTime()
+void WatchyCustom::bigTimeDrawTime()
 {
   uint8_t bigfont_height = 40;
   uint8_t smallfont_height = 18;
@@ -56,7 +51,7 @@ void BigTime::drawTime()
   display.print(dayOfWeek);
 }
 
-void BigTime::drawBattery()
+void WatchyCustom::bigTimeDrawBattery()
 {
   uint8_t batteryLevel = WatchyCustom::getBatteryLevel();
   uint8_t segment_height = 3;

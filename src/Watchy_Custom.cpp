@@ -1,9 +1,12 @@
 #include "Watchy_Custom.h"
 
 RTC_DATA_ATTR bool dark_mode = false;
-RTC_DATA_ATTR bool DEBUG_MODE = true;
-RTC_DATA_ATTR int16_t alarm_timer;
 RTC_DATA_ATTR bool sleep_mode = false;
+RTC_DATA_ATTR bool DEBUG_MODE = true;
+
+
+RTC_DATA_ATTR int8_t watchface_index = 0;
+int8_t max_watchfaces_count = 2;
 
 RTC_DATA_ATTR MSSWeatherData currentMSSWeather;
 
@@ -11,11 +14,6 @@ WatchyCustom::WatchyCustom() {}
 
 void WatchyCustom::init(String datetime)
 {
-  if (DEBUG_MODE)
-  {
-    Serial.begin(115200);
-  }
-
   esp_sleep_wakeup_cause_t wakeup_reason;
   wakeup_reason = esp_sleep_get_wakeup_cause(); //get wake up reason
   Wire.begin(SDA, SCL);                         //init i2c
@@ -41,7 +39,7 @@ void WatchyCustom::init(String datetime)
     }
     break;
   case ESP_SLEEP_WAKEUP_EXT0: //RTC Alarm
-    RTC.alarm(ALARM_2);       //resets the alarm flag in the RTC
+    RTC.alarm(ALARM_2);
     if (guiState == WATCHFACE_STATE)
     {
       RTC.read(currentTime);
@@ -52,27 +50,24 @@ void WatchyCustom::init(String datetime)
       }
       if (currentTime.Hour == SLEEP_HOUR_END && currentTime.Minute == SLEEP_MINUTE_END)
       {
-        sleep_mode = false;
         RTC.alarmInterrupt(ALARM_2, true);
+        sleep_mode = false;
       }
       showWatchFace(true); //partial updates on tick
     }
     break;
-  case ESP_SLEEP_WAKEUP_EXT1: //button Press
+  case ESP_SLEEP_WAKEUP_EXT1:
     if (sleep_mode)
     {
       sleep_mode = false;
-      RTC.alarmInterrupt(ALARM_2, true);
-      RTC.alarm(ALARM_2);
-
-      RTC.read(currentTime);
       showWatchFace(false);
-      break;
     }
-
-    handleButtonPress();
+    else
+    {
+      handleButtonPress();
+    }
     break;
-  default: //reset
+  default:
     _rtcConfig(datetime);
     _bmaConfig();
     showWatchFace(false); //full update on reset
@@ -81,14 +76,29 @@ void WatchyCustom::init(String datetime)
   deepSleep();
 }
 
-void WatchyCustom::showWatchFace(bool partialRefresh)
+bool WatchyCustom::isDebugMode()
 {
-  display.init(0, false); //_initial_refresh to false to prevent full update on init
-  display.setFullWindow();
-  drawWatchFace();
-  display.display(partialRefresh); //partial refresh
-  display.hibernate();
-  guiState = WATCHFACE_STATE;
+  return DEBUG_MODE;
+}
+
+void WatchyCustom::bumpWatchFaceIndex()
+{
+  if (watchface_index == max_watchfaces_count)
+  {
+    watchface_index = 0;
+  } else {
+    watchface_index++;
+  }
+}
+
+void WatchyCustom::disableWatchFace()
+{
+  RTC.alarmInterrupt(ALARM_2, false);
+}
+
+bool WatchyCustom::getSleepMode()
+{
+  return sleep_mode;
 }
 
 void WatchyCustom::drawWatchFace()
@@ -98,11 +108,21 @@ void WatchyCustom::drawWatchFace()
     display.drawBitmap(0, 0, zzz_image, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
     return;
   }
-}
 
-bool WatchyCustom::disableWatchFace()
-{
-  return sleep_mode;
+  switch(watchface_index){
+    case 0:
+      bigTimeDrawWatchFace();
+      break;
+    case 1:
+      cluckentDrawWatchFace();
+      break;
+    case 3:
+      proseDrawWatchFace();
+      break;
+    default:
+      Watchy::drawWatchFace();
+      break;
+  }
 }
 
 void WatchyCustom::_rtcConfig(String datetime)
@@ -457,21 +477,34 @@ void WatchyCustom::handleButtonPress()
 {
   uint64_t wakeupBit = esp_sleep_get_ext1_wakeup_status();
 
-  if (IS_BTN_RIGHT_UP)
+  if (guiState == WATCHFACE_STATE)
   {
-    RTC.read(currentTime);
-    vibrateTime();
-  }
-  else if (guiState == CUSTOM_APP_STATE)
-  {
-    if (wakeupBit & BACK_BTN_MASK)
-    { // return to watch face
+    if (IS_BTN_RIGHT_UP)
+    {
+      RTC.read(currentTime);
+      vibrateTime();
+      return;
+    }
+    else if (IS_BTN_RIGHT_DOWN)
+    {
+      Serial.println("WatchyCustom RIGHT DOWN Button");
+      // disableWatchFace();
+      bumpWatchFaceIndex();
+      Serial.println("WatchFace Index: " + String(watchface_index));
+      RTC.alarm(ALARM_2);
       RTC.read(currentTime);
       showWatchFace(false);
+      return;
     }
   }
-  else
-  {
-    Watchy::handleButtonPress();
-  }
+  // else if (guiState == CUSTOM_APP_STATE)
+  // {
+  //   if (wakeupBit & BACK_BTN_MASK)
+  //   { // return to watch face
+  //     RTC.read(currentTime);
+  //     showWatchFace(false);
+  //     return;
+  //   }
+  // }
+  Watchy::handleButtonPress();
 }
