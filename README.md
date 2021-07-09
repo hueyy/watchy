@@ -10,6 +10,7 @@ The config file (`src/config.h`) is encrypted with [`git-secret`](https://git-se
 
 - [BigTime](./src/BigTime/README.md) - as the title says
 - [Prose](./src/Prose/README.md) - the time in words
+- [Cowsay](./src/Cowsay/Cowsay.md) - ``echo `date` + "\n" + `fortune` | cowsay`` (roughly)
 
 ### Buttons
 

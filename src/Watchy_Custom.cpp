@@ -6,7 +6,7 @@ RTC_DATA_ATTR bool DEBUG_MODE = true;
 
 
 RTC_DATA_ATTR int8_t watchface_index = 0;
-int8_t max_watchfaces_count = 2;
+int8_t max_watchfaces_count = 3;
 
 RTC_DATA_ATTR MSSWeatherData currentMSSWeather;
 
@@ -14,6 +14,8 @@ WatchyCustom::WatchyCustom() {}
 
 void WatchyCustom::init(String datetime)
 {
+  Serial.begin(115200);
+
   esp_sleep_wakeup_cause_t wakeup_reason;
   wakeup_reason = esp_sleep_get_wakeup_cause(); //get wake up reason
   Wire.begin(SDA, SCL);                         //init i2c
@@ -114,10 +116,14 @@ void WatchyCustom::drawWatchFace()
       bigTimeDrawWatchFace();
       break;
     case 1:
+      proseDrawWatchFace();
+      
+      break;
+    case 2:
       cluckentDrawWatchFace();
       break;
     case 3:
-      proseDrawWatchFace();
+      cowsayDrawWatchFace();
       break;
     default:
       Watchy::drawWatchFace();
@@ -507,4 +513,13 @@ void WatchyCustom::handleButtonPress()
   //   }
   // }
   Watchy::handleButtonPress();
+}
+
+String WatchyCustom::zeroPad(uint8_t inputNum)
+{
+  if (inputNum < 10)
+  {
+    return "0" + String(inputNum);
+  }
+  return String(inputNum);
 }

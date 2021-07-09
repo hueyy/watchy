@@ -69,6 +69,7 @@ public:
   void drawHelperGrid();
   void printCentered(uint16_t y, String text);
   void printRight(uint16_t y, String text);
+  String zeroPad(uint8_t inputNum);
   
   void drawWatchFace();
 
@@ -77,15 +78,18 @@ public:
   void bigTimeDrawTime();
   void bigTimeDrawBattery();
 
-  // Cluckent
-  void cluckentDrawWatchFace();
-
   // Prose
   void proseDrawWatchFace();
   void proseDrawTime();
   void proseDrawDate();
   void proseDrawBattery();
   void proseDrawSteps();
+
+  // Cluckent
+  void cluckentDrawWatchFace();
+
+  // Cowsay
+  void cowsayDrawWatchFace();
 
   void disableWatchFace();
   bool getSleepMode();

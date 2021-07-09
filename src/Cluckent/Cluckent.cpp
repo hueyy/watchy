@@ -4,7 +4,13 @@
 void WatchyCustom::cluckentDrawWatchFace()
 {
   display.fillScreen(GxEPD_BLACK);
-  display.drawBitmap(0, 0, cluckent_fanart, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
+  display.drawBitmap(
+      0,
+      0,
+      cluckent_fanart,
+      DISPLAY_WIDTH,
+      DISPLAY_HEIGHT,
+      GxEPD_WHITE);
   display.setTextColor(GxEPD_BLACK);
   display.setFont(&FreeMonoBold9pt7b);
   display.setCursor(10, 170);
