@@ -4,7 +4,6 @@ RTC_DATA_ATTR bool dark_mode = false;
 RTC_DATA_ATTR bool sleep_mode = false;
 RTC_DATA_ATTR bool DEBUG_MODE = true;
 
-
 RTC_DATA_ATTR int8_t watchface_index = 0;
 int8_t max_watchfaces_count = 3;
 
@@ -50,11 +49,6 @@ void WatchyCustom::init(String datetime)
         sleep_mode = true;
         RTC.alarmInterrupt(ALARM_2, false);
       }
-      if (currentTime.Hour == SLEEP_HOUR_END && currentTime.Minute == SLEEP_MINUTE_END)
-      {
-        RTC.alarmInterrupt(ALARM_2, true);
-        sleep_mode = false;
-      }
       showWatchFace(true); //partial updates on tick
     }
     break;
@@ -62,6 +56,7 @@ void WatchyCustom::init(String datetime)
     if (sleep_mode)
     {
       sleep_mode = false;
+      RTC.alarmInterrupt(ALARM_2, true);
       showWatchFace(false);
     }
     else
@@ -88,7 +83,9 @@ void WatchyCustom::bumpWatchFaceIndex()
   if (watchface_index == max_watchfaces_count)
   {
     watchface_index = 0;
-  } else {
+  }
+  else
+  {
     watchface_index++;
   }
 }
@@ -111,23 +108,24 @@ void WatchyCustom::drawWatchFace()
     return;
   }
 
-  switch(watchface_index){
-    case 0:
-      bigTimeDrawWatchFace();
-      break;
-    case 1:
-      proseDrawWatchFace();
-      
-      break;
-    case 2:
-      cluckentDrawWatchFace();
-      break;
-    case 3:
-      cowsayDrawWatchFace();
-      break;
-    default:
-      Watchy::drawWatchFace();
-      break;
+  switch (watchface_index)
+  {
+  case 0:
+    bigTimeDrawWatchFace();
+    break;
+  case 1:
+    proseDrawWatchFace();
+
+    break;
+  case 2:
+    cluckentDrawWatchFace();
+    break;
+  case 3:
+    cowsayDrawWatchFace();
+    break;
+  default:
+    Watchy::drawWatchFace();
+    break;
   }
 }
 
@@ -352,10 +350,10 @@ void WatchyCustom::vibrateTime()
   uint8_t twelveHour = currentTime.Hour > 12
                            ? currentTime.Hour - 12
                            : currentTime.Hour;
-  vibrate(twelveHour, 100);
+  vibrate(twelveHour, 250);
 
   uint8_t quarterHour = currentTime.Minute / 15;
-  vibrate((currentTime.Minute + 14) / 15, 200);
+  vibrate((currentTime.Minute + 14) / 15, 500);
 }
 
 bool WatchyCustom::connectWiFi()

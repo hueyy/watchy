@@ -22,8 +22,6 @@
 #endif
 
 #define SLEEP_HOUR_START 0
-#define SLEEP_HOUR_END 6
 #define SLEEP_MINUTE_START 0
-#define SLEEP_MINUTE_END 0
 
 #endif
