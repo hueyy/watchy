@@ -1,9 +1,9 @@
-#include "../Watchy_Custom.h"
+#include "../../Watchy_Custom.h"
 
-#include "../assets/fonts/Helvetica_Bold25pt7b.h"
-#include "../assets/fonts/Helvetica25pt7b.h"
-#include "../assets/fonts/Helvetica20pt7b.h"
-#include "../assets/fonts/Helvetica18pt7b.h"
+#include "../../assets/fonts/Helvetica_Bold25pt7b.h"
+#include "../../assets/fonts/Helvetica25pt7b.h"
+#include "../../assets/fonts/Helvetica20pt7b.h"
+#include "../../assets/fonts/Helvetica18pt7b.h"
 
 void WatchyCustom::proseDrawWatchFace()
 {

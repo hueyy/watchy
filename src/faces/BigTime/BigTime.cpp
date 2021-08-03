@@ -1,7 +1,7 @@
-#include "../Watchy_Custom.h"
-#include "../assets/fonts/iosevka_bold40pt7b.h"
-#include "../assets/fonts/iosevka_light40pt7b.h"
-#include "../assets/fonts/iosevka_medium18pt7b.h"
+#include "../../Watchy_Custom.h"
+#include "../../assets/fonts/iosevka_bold40pt7b.h"
+#include "../../assets/fonts/iosevka_light40pt7b.h"
+#include "../../assets/fonts/iosevka_medium18pt7b.h"
 
 void WatchyCustom::bigTimeDrawWatchFace()
 {

@@ -1,5 +1,5 @@
-#include "../Watchy_Custom.h"
-#include "../assets/cluckent_fanart.h"
+#include "../../Watchy_Custom.h"
+#include "../../assets/cluckent_fanart.h"
 
 void WatchyCustom::cluckentDrawWatchFace()
 {

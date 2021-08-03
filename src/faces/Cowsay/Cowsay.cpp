@@ -1,7 +1,9 @@
-#include "../Watchy_Custom.h"
+#include "../../Watchy_Custom.h"
 
-#include "../assets/cowsay.h"
-#include "../assets/fonts/iosevka_medium8pt7b.h"
+#include "../../assets/cowsay.h"
+#include "../../assets/fonts/iosevka_medium8pt7b.h"
+
+// TODO fortune randomisation does not appear to work well
 
 // 2 lines of 19 chars each
 const int FORTUNE_SIZE = 30;
