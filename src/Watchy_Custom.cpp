@@ -7,8 +7,6 @@ RTC_DATA_ATTR bool DEBUG_MODE = true;
 RTC_DATA_ATTR int8_t watchface_index = 0;
 int8_t max_watchfaces_count = 3;
 
-RTC_DATA_ATTR MSSWeatherData currentMSSWeather;
-
 WatchyCustom::WatchyCustom() {}
 
 void WatchyCustom::init(String datetime)
@@ -390,93 +388,6 @@ void WatchyCustom::disconnectWiFi()
   btStop();
 }
 
-MSSWeatherData WatchyCustom::getMSSWeatherData()
-{
-  if (connectWiFi())
-  {
-    HTTPClient http;
-    http.setConnectTimeout(5000);
-    String mssQueryURL = String(MSS_24H_API_URL);
-    http.begin(mssQueryURL.c_str());
-    int httpResponseCode = http.GET();
-    if (httpResponseCode == 200)
-    {
-      String payload = http.getString();
-      JSONVar responseObject = JSON.parse(payload);
-      currentMSSWeather.forecast = responseObject["data"]["main_forecast"];
-      currentMSSWeather.highestTemp = int(responseObject["data"]["main_highest_temp"]);
-      currentMSSWeather.lowestTemp = int(responseObject["data"]["main_highest_temp"]);
-      currentMSSWeather.main = responseObject["data"]["main_wxnmain"];
-
-      char *lastFetched;
-      asprintf(
-          &lastFetched,
-          "%d:%d %d/%d/%d",
-          currentTime.Hour,
-          currentTime.Minute,
-          currentTime.Day,
-          currentTime.Month,
-          currentTime.Year);
-      currentMSSWeather.lastFetched = String(lastFetched);
-    }
-    http.end();
-    disconnectWiFi();
-  }
-  return currentMSSWeather;
-}
-
-void WatchyCustom::showMSSWeather()
-{
-  display.init(0, false); //_initial_refresh to false to prevent full update on init
-  display.setFullWindow();
-  display.fillScreen(GxEPD_WHITE);
-  display.setTextColor(GxEPD_BLACK);
-  display.setFont(&Helvetica14pt7b);
-
-  const uint8_t left_padding = 0;
-  const uint8_t top_padding = 25;
-  const uint8_t line_height = 20;
-
-  MSSWeatherData currentWeather = getMSSWeatherData();
-  if (currentMSSWeather.forecast.length() > 0)
-  {
-    display.setCursor(left_padding, top_padding);
-    if (currentMSSWeather.main == "TL")
-    {
-      display.drawBitmap(left_padding, top_padding, rain, 48, 32, GxEPD_WHITE);
-    }
-    display.setCursor(50, top_padding);
-    char *tempString;
-    asprintf(
-        &tempString,
-        "%d - %d °C",
-        currentWeather.highestTemp,
-        currentWeather.lowestTemp);
-    display.println(tempString);
-    // display.setCursor(10, 30);
-    // display.println(currentWeather.forecast);
-  }
-  else
-  {
-    display.setCursor(left_padding, top_padding);
-    display.print("Fetching data…");
-    display.setCursor(left_padding, top_padding + line_height * 2);
-    char *wifiString;
-    asprintf(
-        &wifiString,
-        "WiFi: %s",
-        WIFI_CONFIGURED ? "working" : "!working");
-    display.print(wifiString);
-  }
-
-  display.drawBitmap(left_padding, 125, logo_mss, 80, 73, GxEPD_BLACK);
-
-  display.display(false);
-  display.hibernate();
-
-  guiState = CUSTOM_APP_STATE;
-}
-
 void WatchyCustom::handleButtonPress()
 {
   uint64_t wakeupBit = esp_sleep_get_ext1_wakeup_status();
@@ -492,24 +403,26 @@ void WatchyCustom::handleButtonPress()
     else if (IS_BTN_RIGHT_DOWN)
     {
       Serial.println("WatchyCustom RIGHT DOWN Button");
-      // disableWatchFace();
       bumpWatchFaceIndex();
       Serial.println("WatchFace Index: " + String(watchface_index));
       RTC.alarm(ALARM_2);
       RTC.read(currentTime);
       showWatchFace(false);
       return;
+    } else if (IS_BTN_LEFT_UP) {
+      showSGWeather();
+      return;
     }
   }
-  // else if (guiState == CUSTOM_APP_STATE)
-  // {
-  //   if (wakeupBit & BACK_BTN_MASK)
-  //   { // return to watch face
-  //     RTC.read(currentTime);
-  //     showWatchFace(false);
-  //     return;
-  //   }
-  // }
+  else if (guiState == CUSTOM_APP_STATE)
+  {
+    if (wakeupBit & BACK_BTN_MASK)
+    { // return to watch face
+      RTC.read(currentTime);
+      showWatchFace(false);
+      return;
+    }
+  }
   Watchy::handleButtonPress();
 }
 

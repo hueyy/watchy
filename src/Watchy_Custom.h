@@ -6,8 +6,9 @@
 
 #include "./custom_config.h"
 
+#include "./apps/SGWeather/SGWeather.h"
+
 #include "./assets/icons.h"
-#include "./assets/logo_mss.h"
 #include "./assets/zzz.h"
 
 #include "./assets/fonts/Helvetica14pt7b.h"
@@ -23,39 +24,6 @@
 
 // additional guiState definitions
 #define CUSTOM_APP_STATE 20
-
-typedef struct MSSSubPeriod
-{
-  String time;
-  String east;
-  String west;
-  String north;
-  String south;
-  String central;
-} MSSSubPeriod;
-
-typedef struct MSSPeriod
-{
-  String order;
-  MSSSubPeriod morn;
-  MSSSubPeriod afternoon;
-  MSSSubPeriod night;
-} MSSPeriod;
-
-typedef struct MSSWeatherData
-{
-  String lastFetched;
-  String forecast;
-  String main;
-  int8_t highestTemp;
-  int8_t lowestTemp;
-  int8_t main_humidity_high;
-  int8_t main_humidity_low;
-  String main_wind_direction;
-  String main_wind_speed_range;
-  String weather_name;
-  MSSPeriod period;
-} MSSWeatherData;
 
 class WatchyCustom : public Watchy
 {
@@ -91,6 +59,11 @@ public:
   // Cowsay
   void cowsayDrawWatchFace();
 
+  // apps
+  // weather
+  void showSGWeather();
+  const unsigned char* getWeatherIcon(WeatherType weatherType);
+
   void disableWatchFace();
   bool getSleepMode();
 
@@ -103,8 +76,6 @@ public:
   bool connectWiFi();
   void disconnectWiFi();
 
-  MSSWeatherData getMSSWeatherData();
-  void showMSSWeather();
   void handleButtonPress();
 
   void _rtcConfig(String datetime);
