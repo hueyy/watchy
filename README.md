@@ -53,3 +53,9 @@ It is probably wise to design a watchface in Paint.NET / Photoshop first before 
 The docs for the display library can be found [here](https://learn.adafruit.com/adafruit-gfx-graphics-library/overview).
 
 - `Watchy_Custom` is a big class containing each watchface as a separate method (or methods), as well as other methods providing other functionality
+
+Estimate your actual battery capacity using [G6EJD/LiPo_Battery_Capacity_Estimator](https://github.com/G6EJD/LiPo_Battery_Capacity_Estimator)
+
+## Other Watchy Projects
+
+- [Watchy-Screen](https://github.com/charles-haynes/Watchy-Screen/tree/master/src) - a more sophisticated implementation of multiple screens

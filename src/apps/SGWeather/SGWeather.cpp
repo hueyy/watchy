@@ -17,6 +17,8 @@ const unsigned char* WatchyCustom::getWeatherIcon(WeatherType weatherType){
 
 void WatchyCustom::showSGWeather()
 {
+  doWiFiUpdate();
+
   display.init(0, false); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
   display.fillScreen(GxEPD_WHITE);
@@ -43,6 +45,7 @@ void WatchyCustom::showSGWeather()
     .south = Weather_Sunny,
     .east = Weather_Sunny,
     .west = Weather_Sunny,
+    .central = Weather_PartlyCloudy,
     .humidity = humidity,
     .wind = wind,
     .temperature = temperature,
@@ -63,9 +66,11 @@ void WatchyCustom::showSGWeather()
   display.println("EAST");
   display.drawBitmap(152, 54, sunny, 48, 32, GxEPD_BLACK);
 
-  display.setCursor(124, 117);
+  display.setCursor(128, 117);
   display.println("SOUTH");
   display.drawBitmap(80, 96, sunny, 48, 32, GxEPD_BLACK);
+
+  display.drawBitmap(80, 55, cloudy, 48, 32, GxEPD_BLACK);
 
   display.setCursor(15, 157);
   display.println(
@@ -90,7 +95,7 @@ void WatchyCustom::showSGWeather()
     + String("-")
     + zeroPad(currentWeather.temperature.high)
     + String(" C"));
-  display.drawCircle(170, 173, 2, GxEPD_BLACK);
+  display.drawCircle(169, 173, 2, GxEPD_BLACK);
 
   display.display(false);
   display.hibernate();

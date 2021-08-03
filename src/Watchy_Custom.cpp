@@ -5,6 +5,8 @@ RTC_DATA_ATTR bool sleep_mode = false;
 RTC_DATA_ATTR bool DEBUG_MODE = true;
 
 RTC_DATA_ATTR int8_t watchface_index = 0;
+RTC_DATA_ATTR int8_t timeSyncCounter = TIME_SYNC_INTERVAL;
+
 int8_t max_watchfaces_count = 3;
 
 WatchyCustom::WatchyCustom() {}
@@ -36,6 +38,7 @@ void WatchyCustom::init(String datetime)
       RTC.read(currentTime);
       showWatchFace(true); //partial updates on tick
     }
+    timeSyncCounter++;
     break;
   case ESP_SLEEP_WAKEUP_EXT0: //RTC Alarm
     RTC.alarm(ALARM_2);
@@ -352,6 +355,77 @@ void WatchyCustom::vibrateTime()
 
   uint8_t quarterHour = currentTime.Minute / 15;
   vibrate((currentTime.Minute + 14) / 15, 500);
+}
+
+bool WatchyCustom::connectToWiFi(){
+  int remaining_tries = 3;
+  WIFI_CONFIGURED = false;
+
+  while (remaining_tries > 0)
+  {
+    WiFi.begin(WIFI_SSID, WIFI_PASS);
+    Serial.println("Attempt to connect to WiFi: " + String(WIFI_SSID) + " | " + String(WIFI_PASS));
+
+    WIFI_CONFIGURED = (WiFi.waitForConnectResult() == WL_CONNECTED);
+
+    if (WIFI_CONFIGURED)
+    {
+      break;
+    }
+    remaining_tries--;
+  }
+
+  Serial.println("WIFI_CONFIGURED: " + WIFI_CONFIGURED);
+  return WIFI_CONFIGURED;
+}
+
+void WatchyCustom::syncTime(){
+  Serial.println("Syncing time...");
+
+  struct tm timeinfo;
+
+  //get NTP Time
+  configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
+  delay(4000); //delay 4 secods so configTime can finish recieving the time from the internet
+  getLocalTime(&timeinfo);
+
+  // convert NTP time into proper format
+  tmElements_t tm;
+  tm.Month = timeinfo.tm_mon + 1;// 0-11 based month so we have to add 1
+  tm.Day = timeinfo.tm_mday;
+  tm.Year = timeinfo.tm_year + 1900 - YEAR_OFFSET; //offset from 1970, since year is stored in uint8_t
+  tm.Hour = timeinfo.tm_hour;
+  tm.Minute = timeinfo.tm_min;
+  tm.Second = timeinfo.tm_sec;
+  time_t t = makeTime(tm);
+
+  //set the RTC time to the NTP time
+  Serial.println("Setting time to: " + String(t));
+  RTC.set(t);
+}
+
+void WatchyCustom::doWiFiUpdate(){
+  // update all the things that should be updated via WiFi
+  bool shouldSyncTime = timeSyncCounter >= TIME_SYNC_INTERVAL && TIME_SYNC_INTERVAL != 0;
+  bool wifiNeeded = shouldSyncTime;
+
+  if(wifiNeeded){
+    connectToWiFi();
+  }
+
+  if(!WIFI_CONFIGURED){
+    Serial.println("Failed to connect to WiFi");
+    return;
+  }
+
+  if(shouldSyncTime){
+    syncTime();
+    timeSyncCounter = 0;
+  }
+
+  WIFI_CONFIGURED = false;
+  WiFi.disconnect();
+  WiFi.mode(WIFI_OFF);
 }
 
 bool WatchyCustom::connectWiFi()

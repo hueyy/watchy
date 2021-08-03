@@ -73,8 +73,13 @@ public:
 
   void vibrate(uint8_t times, uint32_t delay);
   void vibrateTime();
+
   bool connectWiFi();
   void disconnectWiFi();
+  bool connectToWiFi();
+
+  void syncTime();
+  void doWiFiUpdate();
 
   void handleButtonPress();
 

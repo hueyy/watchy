@@ -21,6 +21,10 @@
 #define WIFI_PASS ""
 #endif
 
+#define GMT_OFFSET_SEC 28800 // ie UTC +8 = 8 * 60 * 60
+#define DAYLIGHT_OFFSET_SEC 0
+#define NTP_SERVER "pool.ntp.org"
+
 #define SLEEP_HOUR_START 0
 #define SLEEP_MINUTE_START 0
 

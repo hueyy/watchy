@@ -2,4 +2,4 @@
 
 A word-based watch face.
 
-<img src="../../images/prose.jpg" width="200" />
+<img src="../../../images/prose.jpg" width="200" />

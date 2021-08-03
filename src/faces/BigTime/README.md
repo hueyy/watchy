@@ -1,3 +1,3 @@
 # BigTime
 
-![bigtime](../../images/BigTime.png)
+![bigtime](../../../images/BigTime.png)

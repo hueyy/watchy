@@ -1,3 +1,3 @@
 # Cowsay
 
-![cowsay](../../images/cowsay_screenshot.png)
+![cowsay](../../../images/cowsay_screenshot.png)

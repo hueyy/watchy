@@ -18,6 +18,7 @@ typedef struct SGWeather {
   WeatherType south;
   WeatherType east;
   WeatherType west;
+  WeatherType central;
   ValueRange humidity;
   ValueRange wind;
   ValueRange temperature;
