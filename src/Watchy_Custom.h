@@ -38,7 +38,7 @@ public:
   void printCentered(uint16_t y, String text);
   void printRight(uint16_t y, String text);
   String zeroPad(uint8_t inputNum);
-  
+
   void drawWatchFace();
 
   // BigTime
@@ -61,8 +61,10 @@ public:
 
   // apps
   // weather
+  void getSGWeather();
   void showSGWeather();
-  const unsigned char* getWeatherIcon(WeatherType weatherType);
+  WeatherType getWeatherType(String weatherString);
+  const unsigned char *getWeatherIcon(WeatherType weatherType);
 
   void disableWatchFace();
   bool getSleepMode();
@@ -74,8 +76,7 @@ public:
   void vibrate(uint8_t times, uint32_t delay);
   void vibrateTime();
 
-  bool connectWiFi();
-  void disconnectWiFi();
+  void showWiFiConnectingScreen();
   bool connectToWiFi();
 
   void syncTime();

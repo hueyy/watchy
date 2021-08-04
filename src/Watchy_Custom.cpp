@@ -6,6 +6,7 @@ RTC_DATA_ATTR bool DEBUG_MODE = true;
 
 RTC_DATA_ATTR int8_t watchface_index = 0;
 RTC_DATA_ATTR int8_t timeSyncCounter = TIME_SYNC_INTERVAL;
+RTC_DATA_ATTR int8_t sgWeatherCounter = SG_WEATHER_SYNC_INTERVAL;
 
 int8_t max_watchfaces_count = 3;
 
@@ -39,6 +40,8 @@ void WatchyCustom::init(String datetime)
       showWatchFace(true); //partial updates on tick
     }
     timeSyncCounter++;
+    sgWeatherCounter++;
+    doWiFiUpdate();
     break;
   case ESP_SLEEP_WAKEUP_EXT0: //RTC Alarm
     RTC.alarm(ALARM_2);
@@ -357,16 +360,29 @@ void WatchyCustom::vibrateTime()
   vibrate((currentTime.Minute + 14) / 15, 500);
 }
 
-bool WatchyCustom::connectToWiFi(){
+bool WatchyCustom::connectToWiFi()
+{
   int remaining_tries = 3;
   WIFI_CONFIGURED = false;
 
   while (remaining_tries > 0)
   {
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    Serial.println("Attempt to connect to WiFi: " + String(WIFI_SSID) + " | " + String(WIFI_PASS));
+    for (unsigned int i = 0; i < 2; i++)
+    {
+      const char *ssid = i == 0 ? WIFI_SSID1
+        : WIFI_SSID2;
+      const char *pass = i == 0 ? WIFI_PASS1
+        : WIFI_PASS2;
+      Serial.println("Attempt to connect to WiFi: " + String(ssid) + " | " + String(pass));
+      WiFi.begin(ssid, pass);
+      Serial.println("WiFi began");
+      WIFI_CONFIGURED = (WiFi.waitForConnectResult() == WL_CONNECTED);
 
-    WIFI_CONFIGURED = (WiFi.waitForConnectResult() == WL_CONNECTED);
+      if (WIFI_CONFIGURED)
+      {
+        break;
+      }
+    }
 
     if (WIFI_CONFIGURED)
     {
@@ -379,7 +395,8 @@ bool WatchyCustom::connectToWiFi(){
   return WIFI_CONFIGURED;
 }
 
-void WatchyCustom::syncTime(){
+void WatchyCustom::syncTime()
+{
   Serial.println("Syncing time...");
 
   struct tm timeinfo;
@@ -391,7 +408,7 @@ void WatchyCustom::syncTime(){
 
   // convert NTP time into proper format
   tmElements_t tm;
-  tm.Month = timeinfo.tm_mon + 1;// 0-11 based month so we have to add 1
+  tm.Month = timeinfo.tm_mon + 1; // 0-11 based month so we have to add 1
   tm.Day = timeinfo.tm_mday;
   tm.Year = timeinfo.tm_year + 1900 - YEAR_OFFSET; //offset from 1970, since year is stored in uint8_t
   tm.Hour = timeinfo.tm_hour;
@@ -404,62 +421,48 @@ void WatchyCustom::syncTime(){
   RTC.set(t);
 }
 
-void WatchyCustom::doWiFiUpdate(){
+void WatchyCustom::showWiFiConnectingScreen()
+{
+  display.fillScreen(GxEPD_WHITE);
+  display.setTextColor(GxEPD_BLACK);
+  display.setFont(&Helvetica14pt7b);
+  printCentered(100, "Connecting to WiFi...");
+}
+
+void WatchyCustom::doWiFiUpdate()
+{
   // update all the things that should be updated via WiFi
   bool shouldSyncTime = timeSyncCounter >= TIME_SYNC_INTERVAL && TIME_SYNC_INTERVAL != 0;
-  bool wifiNeeded = shouldSyncTime;
+  bool shouldGetWeather = sgWeatherCounter >= SG_WEATHER_SYNC_INTERVAL && SG_WEATHER_SYNC_INTERVAL != 0;
+  bool wifiNeeded = shouldSyncTime && shouldGetWeather;
 
-  if(wifiNeeded){
+  if (wifiNeeded)
+  {
+    showWiFiConnectingScreen();
     connectToWiFi();
+    showWatchFace(false);
   }
 
-  if(!WIFI_CONFIGURED){
+  if (!WIFI_CONFIGURED)
+  {
     Serial.println("Failed to connect to WiFi");
     return;
   }
 
-  if(shouldSyncTime){
+  if (shouldSyncTime)
+  {
     syncTime();
     timeSyncCounter = 0;
   }
 
-  WIFI_CONFIGURED = false;
-  WiFi.disconnect();
-  WiFi.mode(WIFI_OFF);
-}
-
-bool WatchyCustom::connectWiFi()
-{
-  int remaining_tries = 3;
-  while (remaining_tries > 0)
-  {
-
-    WIFI_CONFIGURED = false;
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    WIFI_CONFIGURED = (WiFi.waitForConnectResult() == WL_CONNECTED);
-
-    if (!WIFI_CONFIGURED)
-    {
-      WiFi.begin();
-      WIFI_CONFIGURED = (WiFi.waitForConnectResult() == WL_CONNECTED);
-    }
-
-    if (WIFI_CONFIGURED)
-    {
-      break;
-    }
-    remaining_tries--;
+  if(shouldGetWeather){
+    getSGWeather();
+    sgWeatherCounter = 0;
   }
 
-  return WIFI_CONFIGURED;
-}
-
-void WatchyCustom::disconnectWiFi()
-{
   WIFI_CONFIGURED = false;
   WiFi.disconnect();
   WiFi.mode(WIFI_OFF);
-  btStop();
 }
 
 void WatchyCustom::handleButtonPress()
@@ -483,7 +486,9 @@ void WatchyCustom::handleButtonPress()
       RTC.read(currentTime);
       showWatchFace(false);
       return;
-    } else if (IS_BTN_LEFT_UP) {
+    }
+    else if (IS_BTN_LEFT_UP)
+    {
       showSGWeather();
       return;
     }

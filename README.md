@@ -16,10 +16,12 @@ The config file (`src/config.h`) is encrypted with [`git-secret`](https://git-se
 
 - Top-Right: `vibrateTime` so you can tell the time in the dark. Vibrates for 100ms for every hour and then 200ms for every quarter-hour. Early is probably better than late so minutes are rounded up to the nearest quarter-hour.
 - Bottom-Right: switch between watch faces
+- Top-Left: [displays weather in Singapore](./src/Weather/README.md)
 
 ### Others
 
 - Static sleep screen between 12am-6am (customisable) to conserve power. Interruptable on button press.
+- Periodically NTP time synchronisation
 
 ## Setup
 
@@ -55,6 +57,8 @@ The docs for the display library can be found [here](https://learn.adafruit.com/
 - `Watchy_Custom` is a big class containing each watchface as a separate method (or methods), as well as other methods providing other functionality
 
 Estimate your actual battery capacity using [G6EJD/LiPo_Battery_Capacity_Estimator](https://github.com/G6EJD/LiPo_Battery_Capacity_Estimator)
+
+Note that the Watchy class uses the [`Arduino_Json.h` library](https://arduinojson.org/) which is not the same as the [`ArduinoJson.h` library](https://arduinojson.org/).
 
 ## Other Watchy Projects
 
