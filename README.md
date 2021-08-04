@@ -16,7 +16,7 @@ The config file (`src/config.h`) is encrypted with [`git-secret`](https://git-se
 
 - Top-Right: `vibrateTime` so you can tell the time in the dark. Vibrates for 100ms for every hour and then 200ms for every quarter-hour. Early is probably better than late so minutes are rounded up to the nearest quarter-hour.
 - Bottom-Right: switch between watch faces
-- Top-Left: [displays weather in Singapore](./src/Weather/README.md)
+- Top-Left: [displays weather in Singapore](./src/apps/SGWeather/README.md)
 
 ### Others
 
