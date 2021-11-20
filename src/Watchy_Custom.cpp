@@ -77,11 +77,6 @@ void WatchyCustom::init(String datetime)
   deepSleep();
 }
 
-bool WatchyCustom::isDebugMode()
-{
-  return DEBUG_MODE;
-}
-
 void WatchyCustom::bumpWatchFaceIndex()
 {
   if (watchface_index == max_watchfaces_count)
@@ -104,11 +99,16 @@ bool WatchyCustom::getSleepMode()
   return sleep_mode;
 }
 
+void WatchyCustom::drawSleepScreen()
+{
+  display.drawBitmap(0, 0, zzz_image, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
+}
+
 void WatchyCustom::drawWatchFace()
 {
   if (sleep_mode)
   {
-    display.drawBitmap(0, 0, zzz_image, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_WHITE);
+    drawSleepScreen();
     return;
   }
 
@@ -131,166 +131,6 @@ void WatchyCustom::drawWatchFace()
     Watchy::drawWatchFace();
     break;
   }
-}
-
-void WatchyCustom::_rtcConfig(String datetime)
-{ // taken directly from Watchy library
-  //https://github.com/JChristensen/DS3232RTC
-  RTC.squareWave(SQWAVE_NONE); //disable square wave output
-  //RTC.set(compileTime()); //set RTC time to compile time
-  RTC.setAlarm(ALM2_EVERY_MINUTE, 0, 0, 0, 0); //alarm wakes up Watchy every minute
-  RTC.alarmInterrupt(ALARM_2, true);           //enable alarm interrupt
-  RTC.read(currentTime);
-}
-
-void WatchyCustom::_bmaConfig()
-{ // taken directly from Watchy library
-  if (sensor.begin(_readRegister, _writeRegister, delay) == false)
-  {
-    //fail to init BMA
-    return;
-  }
-
-  // Accel parameter structure
-  Acfg cfg;
-  /*!
-        Output data rate in Hz, Optional parameters:
-            - BMA4_OUTPUT_DATA_RATE_0_78HZ
-            - BMA4_OUTPUT_DATA_RATE_1_56HZ
-            - BMA4_OUTPUT_DATA_RATE_3_12HZ
-            - BMA4_OUTPUT_DATA_RATE_6_25HZ
-            - BMA4_OUTPUT_DATA_RATE_12_5HZ
-            - BMA4_OUTPUT_DATA_RATE_25HZ
-            - BMA4_OUTPUT_DATA_RATE_50HZ
-            - BMA4_OUTPUT_DATA_RATE_100HZ
-            - BMA4_OUTPUT_DATA_RATE_200HZ
-            - BMA4_OUTPUT_DATA_RATE_400HZ
-            - BMA4_OUTPUT_DATA_RATE_800HZ
-            - BMA4_OUTPUT_DATA_RATE_1600HZ
-    */
-  cfg.odr = BMA4_OUTPUT_DATA_RATE_100HZ;
-  /*!
-        G-range, Optional parameters:
-            - BMA4_ACCEL_RANGE_2G
-            - BMA4_ACCEL_RANGE_4G
-            - BMA4_ACCEL_RANGE_8G
-            - BMA4_ACCEL_RANGE_16G
-    */
-  cfg.range = BMA4_ACCEL_RANGE_2G;
-  /*!
-        Bandwidth parameter, determines filter configuration, Optional parameters:
-            - BMA4_ACCEL_OSR4_AVG1
-            - BMA4_ACCEL_OSR2_AVG2
-            - BMA4_ACCEL_NORMAL_AVG4
-            - BMA4_ACCEL_CIC_AVG8
-            - BMA4_ACCEL_RES_AVG16
-            - BMA4_ACCEL_RES_AVG32
-            - BMA4_ACCEL_RES_AVG64
-            - BMA4_ACCEL_RES_AVG128
-    */
-  cfg.bandwidth = BMA4_ACCEL_NORMAL_AVG4;
-
-  /*! Filter performance mode , Optional parameters:
-        - BMA4_CIC_AVG_MODE
-        - BMA4_CONTINUOUS_MODE
-    */
-  cfg.perf_mode = BMA4_CONTINUOUS_MODE;
-
-  // Configure the BMA423 accelerometer
-  sensor.setAccelConfig(cfg);
-
-  // Enable BMA423 accelerometer
-  // Warning : Need to use feature, you must first enable the accelerometer
-  // Warning : Need to use feature, you must first enable the accelerometer
-  sensor.enableAccel();
-
-  struct bma4_int_pin_config config;
-  config.edge_ctrl = BMA4_LEVEL_TRIGGER;
-  config.lvl = BMA4_ACTIVE_HIGH;
-  config.od = BMA4_PUSH_PULL;
-  config.output_en = BMA4_OUTPUT_ENABLE;
-  config.input_en = BMA4_INPUT_DISABLE;
-  // The correct trigger interrupt needs to be configured as needed
-  sensor.setINTPinConfig(config, BMA4_INTR1_MAP);
-
-  struct bma423_axes_remap remap_data;
-  remap_data.x_axis = 1;
-  remap_data.x_axis_sign = 0xFF;
-  remap_data.y_axis = 0;
-  remap_data.y_axis_sign = 0xFF;
-  remap_data.z_axis = 2;
-  remap_data.z_axis_sign = 0xFF;
-  // Need to raise the wrist function, need to set the correct axis
-  sensor.setRemapAxes(&remap_data);
-
-  // Enable BMA423 isStepCounter feature
-  sensor.enableFeature(BMA423_STEP_CNTR, true);
-  // Enable BMA423 isTilt feature
-  sensor.enableFeature(BMA423_TILT, true);
-  // Enable BMA423 isDoubleClick feature
-  sensor.enableFeature(BMA423_WAKEUP, true);
-
-  // Reset steps
-  sensor.resetStepCounter();
-
-  // Turn on feature interrupt
-  sensor.enableStepCountInterrupt();
-  sensor.enableTiltInterrupt();
-  // It corresponds to isDoubleClick interrupt
-  sensor.enableWakeupInterrupt();
-}
-
-uint16_t WatchyCustom::_readRegister(uint8_t address, uint8_t reg, uint8_t *data, uint16_t len)
-{ // taken directly from Watchy library
-  Wire.beginTransmission(address);
-  Wire.write(reg);
-  Wire.endTransmission();
-  Wire.requestFrom((uint8_t)address, (uint8_t)len);
-  uint8_t i = 0;
-  while (Wire.available())
-  {
-    data[i++] = Wire.read();
-  }
-  return 0;
-}
-
-uint16_t WatchyCustom::_writeRegister(uint8_t address, uint8_t reg, uint8_t *data, uint16_t len)
-{ // taken directly from Watchy library
-  Wire.beginTransmission(address);
-  Wire.write(reg);
-  Wire.write(data, len);
-  return (0 != Wire.endTransmission());
-}
-
-void WatchyCustom::drawHelperGrid()
-{
-  for (int i = 0; i <= 200; i += 20)
-  {
-    display.drawLine(i, 0, i, 200, GxEPD_BLACK);
-    display.drawLine(0, i, 200, i, GxEPD_BLACK);
-  }
-}
-
-// text-align: center
-void WatchyCustom::printCentered(uint16_t y, String text)
-{
-  int16_t x1, y1;
-  uint16_t w, h;
-
-  display.getTextBounds(text, 100, 100, &x1, &y1, &w, &h);
-  display.setCursor((200 - w) / 2, y);
-  display.println(text);
-}
-
-// text-align: right
-void WatchyCustom::printRight(uint16_t y, String text)
-{
-  int16_t x1, y1;
-  uint16_t w, h;
-
-  display.getTextBounds(text, 100, 100, &x1, &y1, &w, &h);
-  display.setCursor(200 - w, y);
-  display.println(text);
 }
 
 // taken from https://github.com/peerdavid/Watchy/blob/3a32880b93c926f6ac5d996ee8d7ebffbdfe0136/examples/WatchFaces/David/Watchy_Base.cpp#L447
@@ -370,9 +210,9 @@ bool WatchyCustom::connectToWiFi()
     for (unsigned int i = 0; i < 2; i++)
     {
       const char *ssid = i == 0 ? WIFI_SSID1
-        : WIFI_SSID2;
+                                : WIFI_SSID2;
       const char *pass = i == 0 ? WIFI_PASS1
-        : WIFI_PASS2;
+                                : WIFI_PASS2;
       Serial.println("Attempt to connect to WiFi: " + String(ssid) + " | " + String(pass));
       WiFi.begin(ssid, pass);
       Serial.println("WiFi began");
@@ -423,8 +263,8 @@ void WatchyCustom::syncTime()
 
 void WatchyCustom::showWiFiConnectingScreen()
 {
-  display.fillScreen(GxEPD_WHITE);
-  display.setTextColor(GxEPD_BLACK);
+  display.fillScreen(FOREGROUND_COLOUR);
+  display.setTextColor(FOREGROUND_COLOUR);
   display.setFont(&Helvetica14pt7b);
   printCentered(100, "Connecting to WiFi...");
 }
@@ -455,7 +295,8 @@ void WatchyCustom::doWiFiUpdate()
     timeSyncCounter = 0;
   }
 
-  if(shouldGetWeather){
+  if (shouldGetWeather)
+  {
     getSGWeather();
     sgWeatherCounter = 0;
   }
@@ -463,6 +304,67 @@ void WatchyCustom::doWiFiUpdate()
   WIFI_CONFIGURED = false;
   WiFi.disconnect();
   WiFi.mode(WIFI_OFF);
+}
+
+const char *menuItems[] = {
+    "Check Battery",
+    "Vibrate Motor",
+    "Show Accelerometer",
+    "Toggle Dark Mode",
+    "Set Time",
+    "Setup WiFi",
+    "Update Firmware"};
+int16_t menuOptions = sizeof(menuItems) / sizeof(menuItems[0]);
+
+void WatchyCustom::showMenu(byte menuIndex, bool partialRefresh)
+{
+  // https://gitlab.com/astory024/watchy/-/blob/master/src/Watchy.cpp
+  display.init(0, false); //_initial_refresh to false to prevent full update on init
+  display.setFullWindow();
+  display.fillScreen(BACKGROUND_COLOUR);
+  display.setFont(&FreeMonoBold9pt7b);
+
+  int16_t x1, y1;
+  uint16_t w, h;
+  int16_t yPos;
+  int16_t startPos = 0;
+
+  //Code to move the menu if current selected index out of bounds
+  if (menuIndex + MENU_LENGTH > menuOptions)
+  {
+    startPos = (menuOptions - 1) - (MENU_LENGTH - 1);
+  }
+  else
+  {
+    startPos = menuIndex;
+  }
+  for (int i = startPos; i < MENU_LENGTH + startPos; i++)
+  {
+    yPos = 30 + (MENU_HEIGHT * (i - startPos));
+    display.setCursor(0, yPos);
+    if (i == menuIndex)
+    {
+      display.getTextBounds(menuItems[i], 0, yPos, &x1, &y1, &w, &h);
+      display.fillRect(x1 - 1, y1 - 10, 200, h + 15, FOREGROUND_COLOUR);
+      display.setTextColor(BACKGROUND_COLOUR);
+      display.println(menuItems[i]);
+    }
+    else
+    {
+      display.setTextColor(FOREGROUND_COLOUR);
+      display.println(menuItems[i]);
+    }
+  }
+
+  display.display(partialRefresh);
+
+  guiState = MAIN_MENU_STATE;
+}
+
+void WatchyCustom::toggleDarkMode()
+{
+  dark_mode = !dark_mode;
+  showMenu(menuIndex, false);
 }
 
 void WatchyCustom::handleButtonPress()
@@ -479,9 +381,7 @@ void WatchyCustom::handleButtonPress()
     }
     else if (IS_BTN_RIGHT_DOWN)
     {
-      Serial.println("WatchyCustom RIGHT DOWN Button");
       bumpWatchFaceIndex();
-      Serial.println("WatchFace Index: " + String(watchface_index));
       RTC.alarm(ALARM_2);
       RTC.read(currentTime);
       showWatchFace(false);
@@ -489,27 +389,87 @@ void WatchyCustom::handleButtonPress()
     }
     else if (IS_BTN_LEFT_UP)
     {
-      showSGWeather();
+      // showSGWeather();
       return;
+    }
+    else if (IS_BTN_LEFT_DOWN)
+    {
+      showMenu(menuIndex, true);
+      return;
+    }
+  }
+  else if (guiState == MAIN_MENU_STATE)
+  {
+    if (IS_BTN_LEFT_DOWN)
+    {
+      switch (menuIndex)
+      {
+      case 0:
+        showBattery();
+        break;
+      case 1:
+        Watchy::showBuzz();
+        break;
+      case 2:
+        Watchy::showAccelerometer();
+        break;
+      case 3:
+        toggleDarkMode();
+        break;
+      case 4:
+        Watchy::setTime();
+        break;
+      case 5:
+        Watchy::setupWifi();
+        break;
+      case 6:
+        Watchy::showUpdateFW();
+        break;
+      default:
+        break;
+      }
+      return;
+    }
+    else if (IS_BTN_RIGHT_UP)
+    {
+      menuIndex--;
+      if (menuIndex < 0)
+      {
+        menuIndex = menuOptions - 1;
+      }
+      showMenu(menuIndex, true);
+    }
+    else if (IS_BTN_RIGHT_DOWN)
+    {
+      menuIndex++;
+      if (menuIndex >= menuOptions)
+      {
+        menuIndex = 0;
+      }
+      showMenu(menuIndex, true);
+    }
+    else if (IS_BTN_LEFT_UP)
+    {
+      RTC.read(currentTime);
+      showWatchFace(false);
     }
   }
   else if (guiState == CUSTOM_APP_STATE)
   {
-    if (wakeupBit & BACK_BTN_MASK)
+    if (IS_BTN_LEFT_UP)
     { // return to watch face
       RTC.read(currentTime);
       showWatchFace(false);
       return;
     }
   }
-  Watchy::handleButtonPress();
-}
-
-String WatchyCustom::zeroPad(uint8_t inputNum)
-{
-  if (inputNum < 10)
+  else if (guiState == APP_STATE)
   {
-    return "0" + String(inputNum);
+    if (IS_BTN_LEFT_UP)
+    {
+      showMenu(menuIndex, true);
+      return;
+    }
   }
-  return String(inputNum);
+  // Watchy::handleButtonPress();
 }

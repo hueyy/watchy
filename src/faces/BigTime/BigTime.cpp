@@ -14,8 +14,8 @@ void WatchyCustom::bigTimeDrawTime()
   uint8_t bigfont_height = 40;
   uint8_t smallfont_height = 18;
 
-  display.fillScreen(GxEPD_WHITE);
-  display.setTextColor(GxEPD_BLACK);
+  display.fillScreen(BACKGROUND_COLOUR);
+  display.setTextColor(FOREGROUND_COLOUR);
   display.setFont(&iosevka_bold40pt7b);
   display.setTextWrap(false);
 
@@ -55,6 +55,6 @@ void WatchyCustom::bigTimeDrawBattery()
         DISPLAY_HEIGHT - segment_height,
         segment_width,
         segment_height,
-        GxEPD_BLACK);
+        FOREGROUND_COLOUR);
   }
 }

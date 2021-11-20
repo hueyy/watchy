@@ -13,14 +13,21 @@
 
 #include "./assets/fonts/Helvetica14pt7b.h"
 
+// persistent data
+extern RTC_DATA_ATTR bool dark_mode;
+
 #define BATTERY_OFFSET 0.105
 #define STEP_LENGTH 45 // cm
 #define MSS_24H_API_URL "http://www.weather.gov.sg/mobile/json/rest-get-24-hour-forecast.json"
 
 // button definitions
-#define IS_BTN_RIGHT_UP (wakeupBit & UP_BTN_MASK && guiState == WATCHFACE_STATE)
-#define IS_BTN_LEFT_UP (wakeupBit & BACK_BTN_MASK && guiState == WATCHFACE_STATE)
-#define IS_BTN_RIGHT_DOWN (wakeupBit & DOWN_BTN_MASK && guiState == WATCHFACE_STATE)
+#define IS_BTN_RIGHT_UP (wakeupBit & UP_BTN_MASK)
+#define IS_BTN_LEFT_UP (wakeupBit & BACK_BTN_MASK)
+#define IS_BTN_RIGHT_DOWN (wakeupBit & DOWN_BTN_MASK)
+#define IS_BTN_LEFT_DOWN (wakeupBit & MENU_BTN_MASK)
+
+#define FOREGROUND_COLOUR (dark_mode ? GxEPD_WHITE : GxEPD_BLACK)
+#define BACKGROUND_COLOUR (dark_mode ? GxEPD_BLACK : GxEPD_WHITE)
 
 // additional guiState definitions
 #define CUSTOM_APP_STATE 20
@@ -30,7 +37,6 @@ class WatchyCustom : public Watchy
 public:
   WatchyCustom();
 
-  bool isDebugMode();
   void bumpWatchFaceIndex();
   void init(String datetime = "");
 
@@ -38,8 +44,13 @@ public:
   void printCentered(uint16_t y, String text);
   void printRight(uint16_t y, String text);
   String zeroPad(uint8_t inputNum);
+  String getValue(String data, char separator, int index);
 
+  void drawSleepScreen();
   void drawWatchFace();
+  void showBattery();
+  void showMenu(byte menuIndex, bool partialRefresh);
+  void toggleDarkMode();
 
   // BigTime
   void bigTimeDrawWatchFace();
