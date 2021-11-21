@@ -35,7 +35,6 @@ extern RTC_DATA_ATTR bool dark_mode;
 class WatchyCustom : public Watchy
 {
 public:
-public:
   WatchyCustom();
 
   void bumpWatchFaceIndex();
@@ -49,9 +48,15 @@ public:
 
   void drawSleepScreen();
   void drawWatchFace();
-  void showBattery();
+
+  // menu
   void showMenu(byte menuIndex, bool partialRefresh);
   void toggleDarkMode();
+
+  // default apps
+  void showBattery();
+  void showBuzz();
+  void setTime();
 
   // BigTime
   void bigTimeDrawWatchFace();

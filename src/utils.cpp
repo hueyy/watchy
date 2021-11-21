@@ -202,22 +202,3 @@ String WatchyCustom::getValue(String data, char separator, int index)
 
   return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
-
-void WatchyCustom::showBattery()
-{
-  display.init(0, false); //_initial_refresh to false to prevent full update on init
-  display.setFullWindow();
-  display.fillScreen(BACKGROUND_COLOUR);
-  display.setFont(&FreeMonoBold9pt7b);
-  display.setTextColor(FOREGROUND_COLOUR);
-  display.setCursor(20, 30);
-  display.println("Battery Voltage:");
-  float voltage = getBatteryVoltage();
-  display.setCursor(70, 80);
-  display.print(voltage);
-  display.println("V");
-  display.display(true);
-  display.hibernate();
-
-  guiState = APP_STATE;
-}

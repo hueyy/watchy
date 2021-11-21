@@ -356,7 +356,7 @@ void WatchyCustom::showMenu(byte menuIndex, bool partialRefresh)
     }
   }
 
-  display.display(partialRefresh);
+  display.display(partialRefresh, dark_mode);
 
   guiState = MAIN_MENU_STATE;
 }
@@ -408,7 +408,7 @@ void WatchyCustom::handleButtonPress()
         showBattery();
         break;
       case 1:
-        Watchy::showBuzz();
+        showBuzz();
         break;
       case 2:
         Watchy::showAccelerometer();
@@ -417,7 +417,7 @@ void WatchyCustom::handleButtonPress()
         toggleDarkMode();
         break;
       case 4:
-        Watchy::setTime();
+        setTime();
         break;
       case 5:
         Watchy::setupWifi();

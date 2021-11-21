@@ -4,6 +4,8 @@ The source code for my [Watchy](https://watchy.sqfmi.com/).
 
 The config file (`src/config.h`) is encrypted with [`git-secret`](https://git-secret.io/). Copy `src/config.h.sample` to `src/config.h` and make your own.
 
+3D-printed case courtesy of [@yik3z](https://github.com/yik3z/Watchy-CAD)
+
 ## Features
 
 ### Watch Faces
