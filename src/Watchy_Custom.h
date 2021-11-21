@@ -48,6 +48,7 @@ public:
 
   void drawSleepScreen();
   void drawWatchFace();
+  void showWatchFace(bool partialRefresh);
 
   // menu
   void showMenu(byte menuIndex, bool partialRefresh);
@@ -57,6 +58,9 @@ public:
   void showBattery();
   void showBuzz();
   void setTime();
+
+  // Lupine
+  void lupineDrawWatchFace();
 
   // BigTime
   void bigTimeDrawWatchFace();

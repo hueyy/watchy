@@ -10,6 +10,7 @@ The config file (`src/config.h`) is encrypted with [`git-secret`](https://git-se
 
 ### Watch Faces
 
+- [Lupine](./src/Lupine/README.md) - a watch face with a mountain backdrop
 - [BigTime](./src/BigTime/README.md) - as the title says
 - [Prose](./src/Prose/README.md) - the time in words
 - [Cowsay](./src/Cowsay/Cowsay.md) - ``echo `date` + "\n" + `fortune` | cowsay`` (roughly)

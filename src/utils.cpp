@@ -159,7 +159,7 @@ void WatchyCustom::printCentered(uint16_t y, String text)
   int16_t x1, y1;
   uint16_t w, h;
 
-  display.getTextBounds(text, 100, 100, &x1, &y1, &w, &h);
+  display.getTextBounds(text, 0, 100, &x1, &y1, &w, &h);
   display.setCursor((200 - w) / 2, y);
   display.println(text);
 }

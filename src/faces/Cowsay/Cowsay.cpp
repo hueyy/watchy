@@ -3,10 +3,8 @@
 #include "../../assets/cowsay.h"
 #include "../../assets/fonts/iosevka_medium8pt7b.h"
 
-// TODO fortune randomisation does not appear to work well
-
 // 2 lines of 19 chars each
-const int FORTUNE_SIZE = 30;
+const int FORTUNE_SIZE = 12;
 const String fortunes[FORTUNE_SIZE][2] = {
     {"A bird in hand is",
      "worth 2 in the bush"},
@@ -16,7 +14,7 @@ const String fortunes[FORTUNE_SIZE][2] = {
      "is change."},
     {"He who hesitates",
      "is last."},
-    {"All true wisdom is"
+    {"All true wisdom is",
      "found on T-shirts."},
     {"Wherever you go...",
      "There you are."},
@@ -35,7 +33,7 @@ const String fortunes[FORTUNE_SIZE][2] = {
 
 void WatchyCustom::cowsayDrawWatchFace()
 {
-  display.fillScreen(GxEPD_BLACK);
+  display.fillScreen(FOREGROUND_COLOUR);
 
   display.drawBitmap(
       0,
@@ -43,9 +41,9 @@ void WatchyCustom::cowsayDrawWatchFace()
       cowsay,
       DISPLAY_WIDTH,
       DISPLAY_HEIGHT,
-      GxEPD_WHITE);
+      BACKGROUND_COLOUR);
 
-  display.setTextColor(GxEPD_BLACK);
+  display.setTextColor(FOREGROUND_COLOUR);
   display.setFont(&iosevka_medium8pt7b);
   display.setTextWrap(false);
   display.setCursor(23, 38);
@@ -61,8 +59,12 @@ void WatchyCustom::cowsayDrawWatchFace()
       zeroPad(currentTime.Day) + " " +
       monthShortStr(currentTime.Month));
 
-  srand(millis());
-  String randomFortune[2] = fortunes[rand() % (FORTUNE_SIZE - 1)];
+  // srand(millis());
+
+  uint8_t fortune_index = random(0, FORTUNE_SIZE);
+  String randomFortune[2] = fortunes[fortune_index];
+  Serial.println(fortune_index);
+  Serial.println(randomFortune[0]);
 
   for (int i = 0; i < 2; i++)
   {

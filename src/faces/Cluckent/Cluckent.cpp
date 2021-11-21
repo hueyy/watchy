@@ -3,15 +3,15 @@
 
 void WatchyCustom::cluckentDrawWatchFace()
 {
-  display.fillScreen(GxEPD_BLACK);
+  display.fillScreen(FOREGROUND_COLOUR);
   display.drawBitmap(
       0,
       0,
       cluckent_fanart,
       DISPLAY_WIDTH,
       DISPLAY_HEIGHT,
-      GxEPD_WHITE);
-  display.setTextColor(GxEPD_BLACK);
+      BACKGROUND_COLOUR);
+  display.setTextColor(FOREGROUND_COLOUR);
   display.setFont(&FreeMonoBold9pt7b);
   display.setCursor(10, 170);
   if (currentTime.Hour < 10)

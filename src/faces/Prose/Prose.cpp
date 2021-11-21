@@ -7,7 +7,7 @@
 
 void WatchyCustom::proseDrawWatchFace()
 {
-  display.fillScreen(GxEPD_WHITE);
+  display.fillScreen(BACKGROUND_COLOUR);
 
   proseDrawTime();
   proseDrawDate();
@@ -28,7 +28,7 @@ void WatchyCustom::proseDrawTime()
   const char *minute_tens[4] = {"twenty", "thirty", "forty", "fifty"};
   uint8_t lines = 0;
 
-  display.setTextColor(GxEPD_BLACK);
+  display.setTextColor(FOREGROUND_COLOUR);
   display.setFont(&Helvetica_Bold25pt7b);
   display.setTextWrap(false);
 
@@ -88,7 +88,7 @@ void WatchyCustom::proseDrawTime()
 
 void WatchyCustom::proseDrawDate()
 {
-  display.setTextColor(GxEPD_BLACK);
+  display.setTextColor(FOREGROUND_COLOUR);
   display.setFont(&Helvetica18pt7b);
   String monthStr = monthShortStr(currentTime.Month);
   String dayOfWeek = dayShortStr(currentTime.Wday);
@@ -102,7 +102,7 @@ void WatchyCustom::proseDrawDate()
 void WatchyCustom::proseDrawBattery()
 {
   display.setFont(&Helvetica14pt7b);
-  display.setTextColor(GxEPD_BLACK);
+  display.setTextColor(FOREGROUND_COLOUR);
 
   int8_t bat = getBattery();
   bat = bat >= 100 ? 100 : bat;
@@ -111,7 +111,6 @@ void WatchyCustom::proseDrawBattery()
 
   uint8_t xpos = 85;
 
-  // display.drawBitmap(xpos, 173, battery, 37, 21, GxEPD_BLACK);
   display.setCursor(xpos + 45, 190);
   display.print(batStr + "%");
 }
@@ -119,7 +118,6 @@ void WatchyCustom::proseDrawBattery()
 void WatchyCustom::proseDrawSteps()
 {
   uint32_t distanceWalked = getDistanceWalked();
-  // display.drawBitmap(5, 169, steps, 19, 23, GxEPD_BLACK);
   display.setCursor(0, 190);
 
   String stepStr = distanceWalked >= (1000 * 100)

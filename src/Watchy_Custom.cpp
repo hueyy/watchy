@@ -8,7 +8,7 @@ RTC_DATA_ATTR int8_t watchface_index = 0;
 RTC_DATA_ATTR int8_t timeSyncCounter = TIME_SYNC_INTERVAL;
 RTC_DATA_ATTR int8_t sgWeatherCounter = SG_WEATHER_SYNC_INTERVAL;
 
-int8_t max_watchfaces_count = 3;
+int8_t max_watchfaces_count = 5;
 
 WatchyCustom::WatchyCustom() {}
 
@@ -115,16 +115,18 @@ void WatchyCustom::drawWatchFace()
   switch (watchface_index)
   {
   case 0:
-    bigTimeDrawWatchFace();
+    lupineDrawWatchFace();
     break;
   case 1:
-    proseDrawWatchFace();
-
+    bigTimeDrawWatchFace();
     break;
   case 2:
-    cluckentDrawWatchFace();
+    proseDrawWatchFace();
     break;
   case 3:
+    cluckentDrawWatchFace();
+    break;
+  case 4:
     cowsayDrawWatchFace();
     break;
   default:
@@ -304,6 +306,16 @@ void WatchyCustom::doWiFiUpdate()
   WIFI_CONFIGURED = false;
   WiFi.disconnect();
   WiFi.mode(WIFI_OFF);
+}
+
+void WatchyCustom::showWatchFace(bool partialRefresh)
+{
+  display.init(0, false);
+  display.setFullWindow();
+  drawWatchFace();
+  display.display(partialRefresh, dark_mode);
+  display.hibernate();
+  guiState = WATCHFACE_STATE;
 }
 
 const char *menuItems[] = {
