@@ -23,6 +23,10 @@ The config file (`src/config.h`) is encrypted with [`git-secret`](https://git-se
 - Static sleep screen between 12am-6am (customisable) to conserve power. Interruptable on button press.
 - Periodically NTP time synchronisation
 
+## Libraries
+
+Libraries are included in the repository for convenience.
+
 ## Setup
 
 ### Arduino IDE

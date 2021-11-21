@@ -4,8 +4,6 @@
 #include <Watchy.h>
 #include <WiFiManager.h>
 
-#include "./lib/GxEPD/GxEPD2_154_D67_Custom.h"
-
 #include "./custom_config.h"
 
 #include "./apps/SGWeather/SGWeather.h"
@@ -37,8 +35,6 @@ extern RTC_DATA_ATTR bool dark_mode;
 class WatchyCustom : public Watchy
 {
 public:
-  static GxEPD2_BW<GxEPD2_154_D67_Custom, GxEPD2_154_D67_Custom::HEIGHT> display;
-
 public:
   WatchyCustom();
 

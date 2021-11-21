@@ -1,7 +1,5 @@
 #include "Watchy_Custom.h"
 
-GxEPD2_BW<GxEPD2_154_D67_Custom, GxEPD2_154_D67_Custom::HEIGHT> Watchy::display(GxEPD2_154_D67_Custom(CS, DC, RESET, BUSY));
-
 RTC_DATA_ATTR bool dark_mode = false;
 RTC_DATA_ATTR bool sleep_mode = false;
 RTC_DATA_ATTR bool DEBUG_MODE = true;
