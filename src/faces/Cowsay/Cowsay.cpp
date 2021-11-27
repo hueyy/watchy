@@ -1,10 +1,10 @@
 #include "../../Watchy_Custom.h"
 
 #include "../../assets/cowsay.h"
-#include "../../assets/fonts/iosevka_medium8pt7b.h"
+#include "../../assets/fonts/iosevka_heavy8pt7b.h"
 
 // 2 lines of 19 chars each
-const int FORTUNE_SIZE = 12;
+const uint8_t FORTUNE_SIZE = 12;
 const String fortunes[FORTUNE_SIZE][2] = {
     {"A bird in hand is",
      "worth 2 in the bush"},
@@ -17,7 +17,7 @@ const String fortunes[FORTUNE_SIZE][2] = {
     {"All true wisdom is",
      "found on T-shirts."},
     {"Wherever you go...",
-     "There you are."},
+     "There you are."}, 
     {"Use the Force,",
      "Luke"},
     {"Success can cover",
@@ -44,7 +44,7 @@ void WatchyCustom::cowsayDrawWatchFace()
       BACKGROUND_COLOUR);
 
   display.setTextColor(FOREGROUND_COLOUR);
-  display.setFont(&iosevka_medium8pt7b);
+  display.setFont(&iosevka_heavy8pt7b);
   display.setTextWrap(false);
   display.setCursor(23, 38);
 
@@ -59,16 +59,11 @@ void WatchyCustom::cowsayDrawWatchFace()
       zeroPad(currentTime.Day) + " " +
       monthShortStr(currentTime.Month));
 
-  // srand(millis());
-
   uint8_t fortune_index = random(0, FORTUNE_SIZE);
-  String randomFortune[2] = fortunes[fortune_index];
-  Serial.println(fortune_index);
-  Serial.println(randomFortune[0]);
 
-  for (int i = 0; i < 2; i++)
+  for (uint8_t i = 0; i < 2; i++)
   {
     display.setCursor(23, 58 + i * 18);
-    display.print(randomFortune[i]);
+    display.print(fortunes[fortune_index][i]);
   }
 }

@@ -379,6 +379,10 @@ void WatchyCustom::toggleDarkMode()
   showMenu(menuIndex, false);
 }
 
+const uint64_t SHORT_PRESS_TIME = 500;
+uint64_t pressedTime = 0;
+uint64_t releasedTime = 0;
+
 void WatchyCustom::handleButtonPress()
 {
   uint64_t wakeupBit = esp_sleep_get_ext1_wakeup_status();
@@ -393,6 +397,24 @@ void WatchyCustom::handleButtonPress()
     }
     else if (IS_BTN_RIGHT_DOWN)
     {
+      Serial.print("pressedTime: ");
+      Serial.println(pressedTime);
+      Serial.print("releasedTime: ");
+      Serial.println(releasedTime);
+      if (pressedTime == 0)
+      {
+        pressedTime = millis();
+        releasedTime = 0;
+      }
+      else if (pressedTime != 0 && releasedTime == 0)
+      {
+        releasedTime = millis();
+        Serial.print("Press duration: ");
+        Serial.println(releasedTime - pressedTime);
+        pressedTime = 0;
+        releasedTime = 0;
+      }
+
       bumpWatchFaceIndex();
       RTC.alarm(ALARM_2);
       RTC.read(currentTime);
