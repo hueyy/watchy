@@ -4,11 +4,33 @@ RTC_DATA_ATTR bool dark_mode = false;
 RTC_DATA_ATTR bool sleep_mode = false;
 RTC_DATA_ATTR bool DEBUG_MODE = true;
 
+RTC_DATA_ATTR uint8_t watchfacesMenuIndex;
 RTC_DATA_ATTR int8_t watchface_index = 0;
 RTC_DATA_ATTR int8_t timeSyncCounter = TIME_SYNC_INTERVAL;
 RTC_DATA_ATTR int8_t sgWeatherCounter = SG_WEATHER_SYNC_INTERVAL;
+RTC_DATA_ATTR unsigned long pressedDuration = 0;
 
-int8_t max_watchfaces_count = 5;
+const uint16_t SHORT_PRESS_TIME = 500;
+
+const char *menuItems[] = {
+    "Check Battery",
+    "Vibrate Motor",
+    "Show Accelerometer",
+    "Toggle Dark Mode",
+    "Set Time",
+    "Setup WiFi",
+    "Update Firmware"};
+int16_t menuOptions = sizeof(menuItems) / sizeof(menuItems[0]);
+
+int8_t max_watchfaces_count = 6;
+const char *watchfacesMenu[] = {
+  "Lupine",
+  "BigTime",
+  "Prose",
+  "Cluckent",
+  "Cowsay",
+  "Standard"};
+int16_t watchfacesMenuOptions = sizeof(watchfacesMenu) / sizeof(watchfacesMenu[0]);
 
 WatchyCustom::WatchyCustom() {}
 
@@ -318,15 +340,7 @@ void WatchyCustom::showWatchFace(bool partialRefresh)
   guiState = WATCHFACE_STATE;
 }
 
-const char *menuItems[] = {
-    "Check Battery",
-    "Vibrate Motor",
-    "Show Accelerometer",
-    "Toggle Dark Mode",
-    "Set Time",
-    "Setup WiFi",
-    "Update Firmware"};
-int16_t menuOptions = sizeof(menuItems) / sizeof(menuItems[0]);
+
 
 void WatchyCustom::showMenu(byte menuIndex, bool partialRefresh)
 {
@@ -373,15 +387,55 @@ void WatchyCustom::showMenu(byte menuIndex, bool partialRefresh)
   guiState = MAIN_MENU_STATE;
 }
 
+void WatchyCustom::showWatchFacesMenu(byte menuIndex, bool partialRefresh) {
+  display.init(0, false);
+  display.setFullWindow();
+  display.fillScreen(BACKGROUND_COLOUR);
+  display.setFont(&FreeMonoBold9pt7b);
+
+  int16_t x1, y1;
+  uint16_t w, h;
+  int16_t yPos;
+  int16_t startPos = 0;
+
+  if (menuIndex + MENU_LENGTH > watchfacesMenuOptions)
+  {
+    startPos = (watchfacesMenuOptions - 1) - (MENU_LENGTH - 1);
+  }
+  else
+  {
+    startPos = menuIndex;
+  }
+  for (int i = startPos; i < MENU_LENGTH + startPos; i++)
+  {
+    yPos = 30 + (MENU_HEIGHT * (i - startPos));
+    display.setCursor(0, yPos);
+    if (i == menuIndex)
+    {
+      display.getTextBounds(watchfacesMenu[i], 0, yPos, &x1, &y1, &w, &h);
+      display.fillRect(x1 - 1, y1 - 10, 200, h + 15, FOREGROUND_COLOUR);
+      display.setTextColor(BACKGROUND_COLOUR);
+      display.println(watchfacesMenu[i]);
+    }
+    else
+    {
+      display.setTextColor(FOREGROUND_COLOUR);
+      display.println(watchfacesMenu[i]);
+    }
+  }
+
+  display.display(partialRefresh, dark_mode);
+
+  guiState = WATCHFACES_MENU_STATE;
+}
+
 void WatchyCustom::toggleDarkMode()
 {
   dark_mode = !dark_mode;
   showMenu(menuIndex, false);
 }
 
-const uint64_t SHORT_PRESS_TIME = 500;
-uint64_t pressedTime = 0;
-uint64_t releasedTime = 0;
+bool pressEnded = false;
 
 void WatchyCustom::handleButtonPress()
 {
@@ -397,28 +451,37 @@ void WatchyCustom::handleButtonPress()
     }
     else if (IS_BTN_RIGHT_DOWN)
     {
-      Serial.print("pressedTime: ");
-      Serial.println(pressedTime);
-      Serial.print("releasedTime: ");
-      Serial.println(releasedTime);
-      if (pressedTime == 0)
-      {
-        pressedTime = millis();
-        releasedTime = 0;
-      }
-      else if (pressedTime != 0 && releasedTime == 0)
-      {
-        releasedTime = millis();
-        Serial.print("Press duration: ");
-        Serial.println(releasedTime - pressedTime);
-        pressedTime = 0;
-        releasedTime = 0;
-      }
+      // double tap is WIP
+      // unsigned long startPress = 0;
 
-      bumpWatchFaceIndex();
-      RTC.alarm(ALARM_2);
-      RTC.read(currentTime);
-      showWatchFace(false);
+      // if (pressedDuration == 0)
+      // {
+      //   startPress = millis();
+      //   Serial.print("New pressedTime: ");
+      //   Serial.println(startPress);
+      //   attachInterrupt(IS_BTN_RIGHT_DOWN, buttonTimerStop, FALLING); // use interrupt to stop button timer
+
+      //   while(true){
+      //     Serial.print("Millis: ");
+      //     Serial.println(millis());
+
+      //     if(pressEnded == true){
+      //       detachInterrupt(IS_BTN_RIGHT_DOWN);
+      //       pressEnded = false;
+      //       pressedDuration = millis() - startPress;
+      //       Serial.print("pressedDuration: ");
+      //       Serial.println(pressedDuration);
+      //       pressedDuration = 0;
+      //       break;
+      //     }
+      //   }
+      // }
+
+      // bumpWatchFaceIndex();
+      // RTC.alarm(ALARM_2);
+      // RTC.read(currentTime);
+      // showWatchFace(false);
+      showWatchFacesMenu(watchfacesMenuIndex, true);
       return;
     }
     else if (IS_BTN_LEFT_UP)
@@ -488,6 +551,39 @@ void WatchyCustom::handleButtonPress()
       showWatchFace(false);
     }
   }
+  else if (guiState == WATCHFACES_MENU_STATE)
+  {
+    if (IS_BTN_LEFT_DOWN)
+    {
+      watchface_index = watchfacesMenuIndex;
+      RTC.read(currentTime);
+      showWatchFace(false);
+      return;
+    }
+    else if (IS_BTN_RIGHT_UP)
+    {
+      watchfacesMenuIndex--;
+      if (watchfacesMenuIndex < 0)
+      {
+        watchfacesMenuIndex = watchfacesMenuOptions - 1;
+      }
+      showWatchFacesMenu(watchfacesMenuIndex, true);
+    }
+    else if (IS_BTN_RIGHT_DOWN)
+    {
+      watchfacesMenuIndex++;
+      if (watchfacesMenuIndex >= watchfacesMenuOptions)
+      {
+        watchfacesMenuIndex = 0;
+      }
+      showWatchFacesMenu(watchfacesMenuIndex, true);
+    }
+    else if (IS_BTN_LEFT_UP)
+    {
+      RTC.read(currentTime);
+      showWatchFace(false);
+    }
+  }
   else if (guiState == CUSTOM_APP_STATE)
   {
     if (IS_BTN_LEFT_UP)
@@ -506,4 +602,8 @@ void WatchyCustom::handleButtonPress()
     }
   }
   // Watchy::handleButtonPress();
+}
+
+void buttonTimerStop() {
+  pressEnded = true;
 }

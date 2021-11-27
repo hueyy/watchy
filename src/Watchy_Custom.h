@@ -31,6 +31,7 @@ extern RTC_DATA_ATTR bool dark_mode;
 
 // additional guiState definitions
 #define CUSTOM_APP_STATE 20
+#define WATCHFACES_MENU_STATE 21
 
 class WatchyCustom : public Watchy
 {
@@ -52,6 +53,7 @@ public:
 
   // menu
   void showMenu(byte menuIndex, bool partialRefresh);
+  void showWatchFacesMenu(byte menuIndex, bool partialRefresh);
   void toggleDarkMode();
 
   // default apps
@@ -110,5 +112,7 @@ public:
   static uint16_t _readRegister(uint8_t address, uint8_t reg, uint8_t *data, uint16_t len);
   static uint16_t _writeRegister(uint8_t address, uint8_t reg, uint8_t *data, uint16_t len);
 };
+
+void buttonTimerStop();
 
 #endif
