@@ -14,6 +14,7 @@
 #define VIB_MOTOR_PIN 13
 #define RTC_INT_PIN 27
 
+#define ARDUINO_WATCHY_V10 true
 
 #if !defined(ARDUINO_WATCHY_V10) && !defined(ARDUINO_WATCHY_V15) && !defined(ARDUINO_WATCHY_V20)
     #warning Hardware revision is not defined at the project level. Using hard-coded value

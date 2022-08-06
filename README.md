@@ -38,7 +38,19 @@ Libraries are included in the repository for convenience.
 2. Install `esp32` in the Board Manager
 3. Install `Watchy` in the Library Manager
 4. Set board to `ESP32 Dev Module`
-5. Set Partition Scheme to `Minimal SPIFFS`
+5. Set Partition Scheme to `Huge App`
+
+### Notes
+
+v2.0.3 and v2.0.4 of the esp32 board library appear to have issues, so use v2.0.2 for now.
+
+Set board version in `config.h` file of Watchy library to one of the following
+
+```processing
+#define ARDUINO_WATCHY_V10
+#define ARDUINO_WATCHY_V15
+#define ARDUINO_WATCHY_V20
+```
 
 ### VSCode
 
