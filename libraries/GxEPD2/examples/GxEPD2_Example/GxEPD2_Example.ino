@@ -59,10 +59,13 @@
 // 3-color
 #include "bitmaps/Bitmaps3c200x200.h" // 1.54" b/w/r
 #include "bitmaps/Bitmaps3c104x212.h" // 2.13" b/w/r
+#include "bitmaps/Bitmaps3c128x250.h" // 2.13" b/w/r
 #include "bitmaps/Bitmaps3c128x296.h" // 2.9"  b/w/r
+#include "bitmaps/Bitmaps3c152x296.h" // 2.66" b/w/r
 #include "bitmaps/Bitmaps3c176x264.h" // 2.7"  b/w/r
 #include "bitmaps/Bitmaps3c400x300.h" // 4.2"  b/w/r
 #if defined(ESP8266) || defined(ESP32) || defined(ARDUINO_ARCH_RP2040)
+#include "bitmaps/Bitmaps3c648x480.h" // 5.83" b/w/r
 #include "bitmaps/Bitmaps3c800x480.h" // 7.5"  b/w/r
 #include "bitmaps/Bitmaps3c880x528.h" // 7.5"  b/w/r
 #include "bitmaps/WS_Bitmaps800x600.h" // 6.0"  grey
@@ -70,6 +73,7 @@
 #endif
 #if defined(ESP32)
 #include "bitmaps/Bitmaps1304x984.h" // 12.48" b/w
+#include "bitmaps/Bitmaps3c1304x984.h" // 12.48" b/w/r
 #endif
 
 #else
@@ -86,10 +90,17 @@
 // 3-color
 //#include "bitmaps/Bitmaps3c200x200.h" // 1.54" b/w/r
 //#include "bitmaps/Bitmaps3c104x212.h" // 2.13" b/w/r
+#include "bitmaps/Bitmaps3c128x250.h" // 2.13" b/w/r
 //#include "bitmaps/Bitmaps3c128x296.h" // 2.9"  b/w/r
 //#include "bitmaps/Bitmaps3c176x264.h" // 2.7"  b/w/r
 ////#include "bitmaps/Bitmaps3c400x300.h" // 4.2"  b/w/r // not enough code space
 
+#endif
+
+#if defined(ARDUINO_ARCH_RP2040) && defined(ARDUINO_RASPBERRY_PI_PICO)
+// SPI pins used by GoodDisplay DESPI-PICO. note: steals standard I2C pins PIN_WIRE_SDA (6), PIN_WIRE_SCL (7)
+// uncomment next line for use with GoodDisplay DESPI-PICO.
+arduino::MbedSPI SPI0(4, 7, 6); // need be valid pins for same SPI channel, else fails blinking 4 long 4 short
 #endif
 
 void setup()
@@ -98,8 +109,16 @@ void setup()
   Serial.println();
   Serial.println("setup");
   delay(100);
-  display.init(115200); // default 20ms reset pulse, e.g. for bare panels with DESPI-C02
+#if defined(ARDUINO_ARCH_RP2040) && defined(ARDUINO_RASPBERRY_PI_PICO)
+  // uncomment next line for use with GoodDisplay DESPI-PICO, or use the extended init method
+  //display.epd2.selectSPI(SPI0, SPISettings(4000000, MSBFIRST, SPI_MODE0));
+  // uncomment next 2 lines to allow recovery from configuration failures
+  pinMode(15, INPUT_PULLUP); // safety pin
+  while (!digitalRead(15)) delay(100); // check safety pin for fail recovery
+#endif
+  display.init(115200); // default 10ms reset pulse, e.g. for bare panels with DESPI-C02
   //display.init(115200, true, 2, false); // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
+  //display.init(115200, true, 10, false, SPI0, SPISettings(4000000, MSBFIRST, SPI_MODE0)); // extended init method with SPI channel and/or settings selection
   // first update should be full refresh
   helloWorld();
   delay(1000);
@@ -122,6 +141,7 @@ void setup()
     delay(1000);
   }
   drawBitmaps();
+  //return;
 #if !defined(__AVR) // takes too long!
   if (display.epd2.panel == GxEPD2::ACeP565)
   {
@@ -407,7 +427,7 @@ void helloValue(double v, int digits)
   uint16_t y = ((display.height() * 3 / 4) - tbh / 2) - tby; // y is base line!
   // show what happens, if we use the bounding box for partial window
   uint16_t wx = (display.width() - tbw) / 2;
-  uint16_t wy = ((display.height() * 3 / 4) - tbh / 2) - tby; // y is base line!
+  uint16_t wy = ((display.height() * 3 / 4) - tbh / 2);
   display.setPartialWindow(wx, wy, tbw, tbh);
   display.firstPage();
   do
@@ -676,8 +696,14 @@ void drawBitmaps()
 #ifdef _GxBitmaps128x296_H_
   drawBitmaps128x296();
 #endif
+#ifdef _GxBitmaps152x296_H_
+  drawBitmaps152x296();
+#endif
 #ifdef _GxBitmaps176x264_H_
   drawBitmaps176x264();
+#endif
+#ifdef _GxBitmaps240x416_H_
+  drawBitmaps240x416();
 #endif
 #ifdef _GxBitmaps400x300_H_
   drawBitmaps400x300();
@@ -701,20 +727,23 @@ void drawBitmaps()
 #ifdef _GxBitmaps3c104x212_H_
   drawBitmaps3c104x212();
 #endif
+#ifdef _GxBitmaps3c128x250_H_
+  drawBitmaps3c128x250();
+#endif
 #ifdef _GxBitmaps3c128x296_H_
   drawBitmaps3c128x296();
 #endif
-#ifdef _GxBitmaps152x296_H_
-  drawBitmaps152x296();
+#ifdef _GxBitmaps3c152x296_H_
+  drawBitmaps3c152x296();
 #endif
 #ifdef _GxBitmaps3c176x264_H_
   drawBitmaps3c176x264();
 #endif
-#ifdef _GxBitmaps240x416_H_
-  drawBitmaps240x416();
-#endif
 #ifdef _GxBitmaps3c400x300_H_
   drawBitmaps3c400x300();
+#endif
+#ifdef _GxBitmaps3c648x480_H_
+  drawBitmaps3c648x480();
 #endif
 #ifdef _GxBitmaps3c800x480_H_
   drawBitmaps3c800x480();
@@ -736,6 +765,9 @@ void drawBitmaps()
     drawBitmaps3c200x200();
 #endif
   }
+#if defined(ESP32) && defined(_GxBitmaps3c1304x984_H_)
+  drawBitmaps3c1304x984();
+#endif
 }
 
 #ifdef _GxBitmaps80x128_H_
@@ -830,8 +862,10 @@ void drawBitmaps200x200()
   const unsigned char* bitmaps[] =
   {
     logo200x200, first200x200, second200x200, third200x200, fourth200x200, fifth200x200, sixth200x200, senventh200x200, eighth200x200
+    //logo200x200, first200x200, second200x200, fourth200x200, third200x200, fifth200x200, sixth200x200, senventh200x200, eighth200x200 // ED037TC1 test
   };
 #endif
+  if (display.epd2.hasColor) return; // to avoid many long refreshes
   if ((display.epd2.WIDTH == 200) && (display.epd2.HEIGHT == 200) && !display.epd2.hasColor)
   {
     bool m = display.mirror(true);
@@ -1368,6 +1402,37 @@ void drawBitmaps3c104x212()
 }
 #endif
 
+#ifdef _GxBitmaps3c128x250_H_
+void drawBitmaps3c128x250()
+{
+  if ((display.epd2.WIDTH == 128) && (display.epd2.HEIGHT == 250) && display.epd2.hasColor)
+  {
+    bool mirrored = display.mirror(true);
+    display.firstPage();
+    do
+    {
+      display.fillScreen(GxEPD_WHITE);
+      display.drawInvertedBitmap(0, 0, Bitmap3c128x250_1_black, 128, 250, GxEPD_BLACK);
+      display.drawInvertedBitmap(0, 0, Bitmap3c128x250_1_red, 128, 250, GxEPD_RED);
+    }
+    while (display.nextPage());
+    delay(2000);
+#if !defined(__AVR)
+    display.firstPage();
+    do
+    {
+      display.fillScreen(GxEPD_WHITE);
+      display.drawInvertedBitmap(0, 0, Bitmap3c128x250_2_black, 128, 250, GxEPD_BLACK);
+      display.drawBitmap(0, 0, Bitmap3c128x250_2_red, 128, 250, GxEPD_RED);
+    }
+    while (display.nextPage());
+    delay(2000);
+#endif
+    display.mirror(mirrored);
+  }
+}
+#endif
+
 #ifdef _GxBitmaps3c128x296_H_
 void drawBitmaps3c128x296()
 {
@@ -1404,6 +1469,33 @@ void drawBitmaps3c128x296()
       while (display.nextPage());
       delay(2000);
     }
+  }
+}
+#endif
+
+#ifdef _GxBitmaps3c152x296_H_
+void drawBitmaps3c152x296()
+{
+  bitmap_pair bitmap_pairs[] =
+  {
+    {Bitmap3c152x296_black, Bitmap3c152x296_red}
+  };
+  if (display.epd2.panel == GxEPD2::GDEY0266Z90)
+  {
+    bool mirrored = display.mirror(true);
+    for (uint16_t i = 0; i < sizeof(bitmap_pairs) / sizeof(bitmap_pair); i++)
+    {
+      display.firstPage();
+      do
+      {
+        display.fillScreen(GxEPD_WHITE);
+        display.drawBitmap(0, 0, bitmap_pairs[i].black, 152, 296, GxEPD_BLACK);
+        display.drawInvertedBitmap(0, 0, bitmap_pairs[i].red, 152, 296, GxEPD_RED);
+      }
+      while (display.nextPage());
+      delay(2000);
+    }
+    display.mirror(mirrored);
   }
 }
 #endif
@@ -1456,6 +1548,35 @@ void drawBitmaps3c400x300()
         display.fillScreen(GxEPD_WHITE);
         display.drawInvertedBitmap(0, 0, bitmap_pairs[i].black, display.epd2.WIDTH, display.epd2.HEIGHT, GxEPD_BLACK);
         display.drawInvertedBitmap(0, 0, bitmap_pairs[i].red, display.epd2.WIDTH, display.epd2.HEIGHT, GxEPD_RED);
+      }
+      while (display.nextPage());
+      delay(2000);
+    }
+  }
+}
+#endif
+
+#ifdef _GxBitmaps3c648x480_H_
+void drawBitmaps3c648x480()
+{
+#if !defined(__AVR)
+  bitmap_pair bitmap_pairs[] =
+  {
+    {Bitmap3c648x480_black, Bitmap3c648x480_red}
+  };
+#else
+  bitmap_pair bitmap_pairs[] = {}; // not enough code space
+#endif
+  if (display.epd2.panel == GxEPD2::GDEW0583Z83)
+  {
+    for (uint16_t i = 0; i < sizeof(bitmap_pairs) / sizeof(bitmap_pair); i++)
+    {
+      display.firstPage();
+      do
+      {
+        display.fillScreen(GxEPD_WHITE);
+        display.drawBitmap(0, 0, bitmap_pairs[i].black, 648, 480, GxEPD_BLACK);
+        display.drawBitmap(0, 0, bitmap_pairs[i].red, 648, 480, GxEPD_RED);
       }
       while (display.nextPage());
       delay(2000);
@@ -1524,6 +1645,18 @@ void drawBitmaps3c880x528()
 }
 #endif
 
+#if defined(ESP32) && defined(_GxBitmaps3c1304x984_H_)
+void drawBitmaps3c1304x984()
+{
+  if (display.epd2.panel == GxEPD2::GDEY1248Z51)
+  {
+    //display.drawImage(Bitmap3c1304x984_black, Bitmap3c1304x984_red, 0, 0, 1304, 984, false, false, true);
+    display.writeImage(0, Bitmap3c1304x984_red, 0, 0, 1304, 984, true, false, true); // red bitmap is inverted
+    display.drawImage(Bitmap3c1304x984_black, 0, 0, 0, 1304, 984, true, false, true); // black bitmap is normal
+  }
+}
+#endif
+
 #if defined(_WS_Bitmaps7c192x143_H_)
 void drawBitmaps7c192x143()
 {
@@ -1576,7 +1709,7 @@ void draw7colorlines()
       display.fillRect(0, y, display.width(), h, GxEPD_ORANGE); y += h;
       display.fillRect(0, y, display.width(), h, GxEPD_WHITE); y += h;
     }
-    while ((y + 12 * h) < display.height());
+    while ((y + 12 * h) < uint16_t(display.height()));
     //display.drawPixel(0, y, GxEPD_BLACK); display.drawPixel(10, y, GxEPD_GREEN);
     //display.drawPixel(20, y, GxEPD_BLUE); display.drawPixel(30, y, GxEPD_RED);
     //display.drawPixel(40, y, GxEPD_YELLOW); display.drawPixel(50, y, GxEPD_ORANGE);

@@ -24,12 +24,12 @@ int16_t menuOptions = sizeof(menuItems) / sizeof(menuItems[0]);
 
 int8_t max_watchfaces_count = 6;
 const char *watchfacesMenu[] = {
-  "Lupine",
-  "BigTime",
-  "Prose",
-  "Cluckent",
-  "Cowsay",
-  "Standard"};
+    "Lupine",
+    "BigTime",
+    "Prose",
+    "Cluckent",
+    "Cowsay",
+    "Standard"};
 int16_t watchfacesMenuOptions = sizeof(watchfacesMenu) / sizeof(watchfacesMenu[0]);
 
 WatchyCustom::WatchyCustom() {}
@@ -340,8 +340,6 @@ void WatchyCustom::showWatchFace(bool partialRefresh)
   guiState = WATCHFACE_STATE;
 }
 
-
-
 void WatchyCustom::showMenu(byte menuIndex, bool partialRefresh)
 {
   // https://gitlab.com/astory024/watchy/-/blob/master/src/Watchy.cpp
@@ -387,7 +385,8 @@ void WatchyCustom::showMenu(byte menuIndex, bool partialRefresh)
   guiState = MAIN_MENU_STATE;
 }
 
-void WatchyCustom::showWatchFacesMenu(byte menuIndex, bool partialRefresh) {
+void WatchyCustom::showWatchFacesMenu(byte menuIndex, bool partialRefresh)
+{
   display.init(0, false);
   display.setFullWindow();
   display.fillScreen(BACKGROUND_COLOUR);
@@ -514,7 +513,7 @@ void WatchyCustom::handleButtonPress()
         toggleDarkMode();
         break;
       case 4:
-        setTime();
+        Watchy::setTime();
         break;
       case 5:
         Watchy::setupWifi();
@@ -604,6 +603,7 @@ void WatchyCustom::handleButtonPress()
   // Watchy::handleButtonPress();
 }
 
-void buttonTimerStop() {
+void buttonTimerStop()
+{
   pressEnded = true;
 }

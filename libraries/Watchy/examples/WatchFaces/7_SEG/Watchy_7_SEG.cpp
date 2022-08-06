@@ -8,8 +8,6 @@ const uint8_t BATTERY_SEGMENT_SPACING = 9;
 const uint8_t WEATHER_ICON_WIDTH = 48;
 const uint8_t WEATHER_ICON_HEIGHT = 32;
 
-Watchy7SEG::Watchy7SEG(){} //constructor
-
 void Watchy7SEG::drawWatchFace(){
     display.fillScreen(DARKMODE ? GxEPD_BLACK : GxEPD_WHITE);
     display.setTextColor(DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
@@ -40,8 +38,8 @@ void Watchy7SEG::drawTime(){
     display.print(":");
     if(currentTime.Minute < 10){
         display.print("0");
-    }  
-    display.println(currentTime.Minute);  
+    }
+    display.println(currentTime.Minute);
 }
 
 void Watchy7SEG::drawDate(){
@@ -52,6 +50,9 @@ void Watchy7SEG::drawDate(){
 
     String dayOfWeek = dayStr(currentTime.Wday);
     display.getTextBounds(dayOfWeek, 5, 85, &x1, &y1, &w, &h);
+    if(currentTime.Wday == 4){
+        w = w - 5;
+    }
     display.setCursor(85 - w, 85);
     display.println(dayOfWeek);
 
@@ -63,11 +64,11 @@ void Watchy7SEG::drawDate(){
     display.setFont(&DSEG7_Classic_Bold_25);
     display.setCursor(5, 120);
     if(currentTime.Day < 10){
-    display.print("0");      
-    }     
+    display.print("0");
+    }
     display.println(currentTime.Day);
     display.setCursor(5, 150);
-    display.println(currentTime.Year + YEAR_OFFSET);// offset from 1970, since year is stored in uint8_t
+    display.println(tmYearToCalendar(currentTime.Year));// offset from 1970, since year is stored in uint8_t
 }
 void Watchy7SEG::drawSteps(){
     // reset step counter at midnight
@@ -92,7 +93,7 @@ void Watchy7SEG::drawBattery(){
     }
     else if(VBAT > 3.80 && VBAT <= 3.95){
         batteryLevel = 1;
-    }    
+    }
     else if(VBAT <= 3.80){
         batteryLevel = 0;
     }
@@ -107,7 +108,7 @@ void Watchy7SEG::drawWeather(){
     weatherData currentWeather = getWeatherData();
 
     int8_t temperature = currentWeather.temperature;
-    int16_t weatherConditionCode = currentWeather.weatherConditionCode;   
+    int16_t weatherConditionCode = currentWeather.weatherConditionCode;
 
     display.setFont(&DSEG7_Classic_Regular_39);
     int16_t  x1, y1;
@@ -121,26 +122,26 @@ void Watchy7SEG::drawWeather(){
         display.setCursor(159 - w - x1, 136);
     }
     display.println(temperature);
-    display.drawBitmap(165, 110, strcmp(TEMP_UNIT, "metric") == 0 ? celsius : fahrenheit, 26, 20, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
+    display.drawBitmap(165, 110, currentWeather.isMetric ? celsius : fahrenheit, 26, 20, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);
     const unsigned char* weatherIcon;
 
     //https://openweathermap.org/weather-conditions
     if(weatherConditionCode > 801){//Cloudy
     weatherIcon = cloudy;
     }else if(weatherConditionCode == 801){//Few Clouds
-    weatherIcon = cloudsun;  
+    weatherIcon = cloudsun;
     }else if(weatherConditionCode == 800){//Clear
-    weatherIcon = sunny;  
+    weatherIcon = sunny;
     }else if(weatherConditionCode >=700){//Atmosphere
-    weatherIcon = cloudy; 
+    weatherIcon = atmosphere;
     }else if(weatherConditionCode >=600){//Snow
     weatherIcon = snow;
     }else if(weatherConditionCode >=500){//Rain
-    weatherIcon = rain;  
-    }else if(weatherConditionCode >=300){//Drizzle
     weatherIcon = rain;
+    }else if(weatherConditionCode >=300){//Drizzle
+    weatherIcon = drizzle;
     }else if(weatherConditionCode >=200){//Thunderstorm
-    weatherIcon = rain; 
+    weatherIcon = thunderstorm;
     }else
     return;
     display.drawBitmap(145, 158, weatherIcon, WEATHER_ICON_WIDTH, WEATHER_ICON_HEIGHT, DARKMODE ? GxEPD_WHITE : GxEPD_BLACK);

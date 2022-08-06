@@ -34,17 +34,21 @@
 #include "epd3c/GxEPD2_154_Z90c.h"
 #include "epd3c/GxEPD2_213c.h"
 #include "epd3c/GxEPD2_213_Z19c.h"
+#include "epd3c/GxEPD2_213_Z98c.h"
 #include "epd3c/GxEPD2_290c.h"
 #include "epd3c/GxEPD2_290_Z13c.h"
 #include "epd3c/GxEPD2_290_C90c.h"
+#include "epd3c/GxEPD2_266c.h"
 #include "epd3c/GxEPD2_270c.h"
 #include "epd3c/GxEPD2_420c.h"
 #include "epd3c/GxEPD2_420c_Z21.h"
 #include "epd3c/GxEPD2_583c.h"
+#include "epd3c/GxEPD2_583c_Z83.h"
 #include "epd3c/GxEPD2_565c.h"
 #include "epd3c/GxEPD2_750c.h"
 #include "epd3c/GxEPD2_750c_Z08.h"
 #include "epd3c/GxEPD2_750c_Z90.h"
+#include "epd3c/GxEPD2_1248c.h"
 
 template<typename GxEPD2_Type, const uint16_t page_height>
 class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
@@ -52,9 +56,9 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
   public:
     GxEPD2_Type epd2;
 #if ENABLE_GxEPD2_GFX
-    GxEPD2_3C(GxEPD2_Type epd2_instance) : GxEPD2_GFX_BASE_CLASS(epd2, GxEPD2_Type::WIDTH, GxEPD2_Type::HEIGHT), epd2(epd2_instance)
+    GxEPD2_3C(GxEPD2_Type epd2_instance) : GxEPD2_GFX_BASE_CLASS(epd2, GxEPD2_Type::WIDTH_VISIBLE, GxEPD2_Type::HEIGHT), epd2(epd2_instance)
 #else
-    GxEPD2_3C(GxEPD2_Type epd2_instance) : GxEPD2_GFX_BASE_CLASS(GxEPD2_Type::WIDTH, GxEPD2_Type::HEIGHT), epd2(epd2_instance)
+    GxEPD2_3C(GxEPD2_Type epd2_instance) : GxEPD2_GFX_BASE_CLASS(GxEPD2_Type::WIDTH_VISIBLE, GxEPD2_Type::HEIGHT), epd2(epd2_instance)
 #endif
     {
       _page_height = page_height;
@@ -105,11 +109,11 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
       x -= _pw_x;
       y -= _pw_y;
       // clip to (partial) window
-      if ((x < 0) || (x >= _pw_w) || (y < 0) || (y >= _pw_h)) return;
+      if ((x < 0) || (x >= int16_t(_pw_w)) || (y < 0) || (y >= int16_t(_pw_h))) return;
       // adjust for current page
       y -= _current_page * _page_height;
       // check if in current page
-      if ((y < 0) || (y >= _page_height)) return;
+      if ((y < 0) || (y >= int16_t(_page_height))) return;
       uint16_t i = x / 8 + y * (_pw_w / 8);
       _black_buffer[i] = (_black_buffer[i] | (1 << (7 - x % 8))); // white
       _color_buffer[i] = (_color_buffer[i] | (1 << (7 - x % 8)));
@@ -139,6 +143,18 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
       setFullWindow();
     }
 
+    // init method with additional parameters:
+    // SPIClass& spi: either SPI or alternate HW SPI channel
+    // SPISettings spi_settings: e.g. for higher SPI speed selection
+    void init(uint32_t serial_diag_bitrate, bool initial, uint16_t reset_duration, bool pulldown_rst_mode, SPIClass& spi, SPISettings spi_settings)
+    {
+      epd2.selectSPI(spi, spi_settings);
+      epd2.init(serial_diag_bitrate, initial, reset_duration, pulldown_rst_mode);
+      _using_partial_mode = false;
+      _current_page = 0;
+      setFullWindow();
+    }
+
     void fillScreen(uint16_t color) // 0x0 black, >0x0 white, to buffer
     {
       uint8_t black = 0xFF;
@@ -156,7 +172,7 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
     // display buffer content to screen, useful for full screen buffer
     void display(bool partial_update_mode = false)
     {
-      epd2.writeImage(_black_buffer, _color_buffer, 0, 0, WIDTH, _page_height);
+      epd2.writeImage(_black_buffer, _color_buffer, 0, 0, GxEPD2_Type::WIDTH, _page_height);
       epd2.refresh(partial_update_mode);
       if (!partial_update_mode) epd2.powerOff();
     }
@@ -174,7 +190,7 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
       w = gx_uint16_min(w, width() - x);
       h = gx_uint16_min(h, height() - y);
       _rotate(x, y, w, h);
-      epd2.writeImagePart(_black_buffer, _color_buffer, x, y, WIDTH, _page_height, x, y, w, h);
+      epd2.writeImagePart(_black_buffer, _color_buffer, x, y, GxEPD2_Type::WIDTH, _page_height, x, y, w, h);
       epd2.refresh(x, y, w, h);
     }
 
@@ -185,9 +201,9 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
       w = gx_uint16_min(w, width() - x);
       h = gx_uint16_min(h, height() - y);
       _rotate(x, y, w, h);
-      epd2.writeImagePartNew(_black_buffer, x, y, WIDTH, _page_height, x, y, w, h);
+      epd2.writeImagePartNew(_black_buffer, x, y, GxEPD2_Type::WIDTH, _page_height, x, y, w, h);
       epd2.refresh_bw(x, y, w, h);
-      epd2.writeImagePartPrevious(_black_buffer, x, y, WIDTH, _page_height, x, y, w, h);
+      epd2.writeImagePartPrevious(_black_buffer, x, y, GxEPD2_Type::WIDTH, _page_height, x, y, w, h);
     }
 
     void setFullWindow()
@@ -195,7 +211,7 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
       _using_partial_mode = false;
       _pw_x = 0;
       _pw_y = 0;
-      _pw_w = WIDTH;
+      _pw_w = GxEPD2_Type::WIDTH;
       _pw_h = HEIGHT;
     }
 
@@ -234,7 +250,7 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
       {
         //Serial.print("  nextPage("); Serial.print(_pw_x); Serial.print(", "); Serial.print(_pw_y); Serial.print(", ");
         //Serial.print(_pw_w); Serial.print(", "); Serial.print(_pw_h); Serial.print(") P"); Serial.println(_current_page);
-        uint16_t page_ye = _current_page < (_pages - 1) ? page_ys + _page_height : HEIGHT;
+        uint16_t page_ye = _current_page < int16_t(_pages - 1) ? page_ys + _page_height : HEIGHT;
         uint16_t dest_ys = _pw_y + page_ys; // transposed
         uint16_t dest_ye = gx_uint16_min(_pw_y + _pw_h, _pw_y + page_ye);
         if (dest_ye > dest_ys)
@@ -250,7 +266,7 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
           //Serial.print(dest_ys); Serial.print(".."); Serial.println(dest_ye);
         }
         _current_page++;
-        if (_current_page == _pages)
+        if (_current_page == int16_t(_pages))
         {
           _current_page = 0;
           if (!_second_phase)
@@ -269,9 +285,9 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
       }
       else // full update
       {
-        epd2.writeImage(_black_buffer, _color_buffer, 0, page_ys, WIDTH, gx_uint16_min(_page_height, HEIGHT - page_ys));
+        epd2.writeImage(_black_buffer, _color_buffer, 0, page_ys, GxEPD2_Type::WIDTH, gx_uint16_min(_page_height, HEIGHT - page_ys));
         _current_page++;
-        if (_current_page == _pages)
+        if (_current_page == int16_t(_pages))
         {
           _current_page = 0;
           if ((epd2.panel == GxEPD2::GDEW0154Z04) && (_pages > 1))
@@ -305,9 +321,9 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
         }
         else // full update
         {
-          epd2.writeImage(_black_buffer, 0, 0, WIDTH, HEIGHT);
+          epd2.writeImage(_black_buffer, 0, 0, GxEPD2_Type::WIDTH, HEIGHT);
           epd2.refresh(false);
-          epd2.writeImagePrevious(_black_buffer, 0, 0, WIDTH, HEIGHT);
+          epd2.writeImagePrevious(_black_buffer, 0, 0, GxEPD2_Type::WIDTH, HEIGHT);
           epd2.powerOff();
         }
         return false;
@@ -351,8 +367,8 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
       }
       else // full update
       {
-        if (!_second_phase) epd2.writeImage(_black_buffer, 0, page_ys, WIDTH, gx_uint16_min(_page_height, HEIGHT - page_ys));
-        else epd2.writeImagePrevious(_black_buffer, 0, page_ys, WIDTH, gx_uint16_min(_page_height, HEIGHT - page_ys));
+        if (!_second_phase) epd2.writeImage(_black_buffer, 0, page_ys, GxEPD2_Type::WIDTH, gx_uint16_min(_page_height, HEIGHT - page_ys));
+        else epd2.writeImagePrevious(_black_buffer, 0, page_ys, GxEPD2_Type::WIDTH, gx_uint16_min(_page_height, HEIGHT - page_ys));
         _current_page++;
         if (_current_page == _pages)
         {
@@ -400,7 +416,7 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
           uint16_t page_ys = _current_page * _page_height;
           fillScreen(GxEPD_WHITE);
           drawCallback(pv);
-          epd2.writeImage(_black_buffer, _color_buffer, 0, page_ys, WIDTH, gx_uint16_min(_page_height, HEIGHT - page_ys));
+          epd2.writeImage(_black_buffer, _color_buffer, 0, page_ys, GxEPD2_Type::WIDTH, gx_uint16_min(_page_height, HEIGHT - page_ys));
         }
         if (epd2.panel == GxEPD2::GDEW0154Z04)
         { // GxEPD2_154c paged workaround: write color part
@@ -409,7 +425,7 @@ class GxEPD2_3C : public GxEPD2_GFX_BASE_CLASS
             uint16_t page_ys = _current_page * _page_height;
             fillScreen(GxEPD_WHITE);
             drawCallback(pv);
-            epd2.writeImage(_black_buffer, _color_buffer, 0, page_ys, WIDTH, gx_uint16_min(_page_height, HEIGHT - page_ys));
+            epd2.writeImage(_black_buffer, _color_buffer, 0, page_ys, GxEPD2_Type::WIDTH, gx_uint16_min(_page_height, HEIGHT - page_ys));
           }
         }
         epd2.refresh(false); // full update

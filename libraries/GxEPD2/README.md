@@ -53,6 +53,7 @@
 
 ### Supported SPI e-paper panels from Good Display:
 - GDEW0102T4     1.02" b/w
+- DEPG0150BN     1.50" b/w 200x200, e.g. LILYGO® TTGO T5 V2.4.1 1.50 inch
 - GDEP015OC1     1.54" b/w
 - GDEH0154D67    1.54" b/w, replacement for GDEP015OC1
 - GDEW0154T8     1.54" b/w 152x152
@@ -69,6 +70,8 @@
 - GDEW0213M21    2.13" b/w DES
 - GDEW0213Z16    2.13" b/w/r
 - GDEW0213Z19    2.13" b/w/r
+- GDEY0213Z98    2.13" b/w/r 122x250
+- DEPG0213BN     2.13" b/w 128x250, e.g. LILYGO® TTGO T5 V2.3.1 2.13 inch
 - GDEH029A1      2.9" b/w
 - GDEW029T5      2.9" b/w
 - GDEW029T5D     2.9" b/w
@@ -78,11 +81,16 @@
 - GDEW029Z10     2.9" b/w/r
 - GDEW029Z13     2.9" b/w/r
 - GDEM029C90     2.9" b/w/y
+- DEPG0290BS     2.9" b/w 128x296, e.g. LILYGO® TTGO T5 V2.4.1 2.9"
 - GDEW026T0      2.6" b/w
 - GDEW026M01     2.6" b/w DES
+- DEPG0266BN     2.66" b/w 152x296, e.g. LILYGO® TTGO T5 2.66 inch
+- GDEY0266Z90    2.66" b/w/r 152x296
 - GDEW027C44     2.7" b/w/r
 - GDEW027W3      2.7" b/w
+- GDEY027T91     2.7" b/w
 - GDEW0371W7     3.7" b/w
+- ED037TC1       3.7" b/w 280x480 Waveshare 3.7"
 - GDEW042T2      4.2" b/w
 - GDEW042M01     4.2" b/w DES
 - GDEW042Z15     4.2" b/w/r
@@ -90,24 +98,72 @@
 - ACeP565        5.65" Waveshare 5.65" 7-color e-paper display 600x448
 - GDEW0583T7     5.83" b/w
 - GDEW0583T8     5.83" b/w 648x460
+- GDEW0583Z83    5.83" b/w/r 648x460
 - GDEW075T8      7.5" b/w
 - GDEW075T7      7.5" b/w 800x480
 - GDEW075Z09     7.5" b/w/r
 - GDEW075Z08     7.5" b/w/r 800x480
 - GDEH075Z90     7.5" b/w/r 880x528
 - GDEH116T91    11.6" b/w 960x640
-- GDEW1248T3    12.48 b/w 1304x984
+- GDEW1248T3    12.48" b/w 1304x984
+- GDEY1248Z51   12.48" b/w/r 1304x984
 #### Supported SPI e-paper panels & boards from Waveshare: compare with Good Display, same panel
 #### other supported panels
 - ED060SCT        6" grey levels, on Waveshare e-Paper IT8951 Driver HAT
 - ED060KC1        6" grey levels, 1448x1072, on Waveshare e-Paper IT8951 Driver HAT
 - ED078KC2        7.8" grey levels, 1872x1404, on Waveshare e-Paper IT8951 Driver HAT
+- ES103TC1       10.3" grey levels, 1872x1404, on Waveshare e-Paper IT8951 Driver HAT
 
 ### I can and will only support e-paper panels I have!
 - promotion panels from suppliers are welcome, to add support to GxEPD2
 - donation panels from users are welcome, to add support to GxEPD2
 
-### Version 1.3.9
+### Version 1.4.8
+- added support for GDEY027T91 2.7" b/w 176x264
+- added support for GDEY1248Z51 12.48" b/w/r 1304x984
+- fixed name of panel DEPG0150BN
+- updated certificate and fingerprint for GitHub download in GxEPD2_WiFi_Example
+#### Version 1.4.7
+- added support for DEPG0150BN 1.50" b/w 200x200, e.g. LILYGO® TTGO T5 V2.4.1 1.50 inch
+- added support for DEPG0213BN 2.13" b/w 128x250, e.g. LILYGO® TTGO T5 V2.3.1 2.13 inch
+- added support for DEPG0266BN 2.66" b/w 152x296, e.g. LILYGO® TTGO T5 2.66 inch
+- added support for DEPG0290BS 2.9"  b/w 128x296, e.g. LILYGO® TTGO T5 V2.4.1 2.9"
+- added support for ES103TC1 10.3" grey levels, 1872x1404, on Waveshare e-Paper IT8951 Driver HAT
+#### Version 1.4.6
+- added support for GDEY0266Z90 2.66" b/w/r 152x296
+- added support for GDEW0583Z83 5.83" b/w/r 648x460
+#### Version 1.4.5
+- added support for GDEY0213Z98 2.13" b/w/r 122x250
+- tested with LOLIN 2.13" Tri-Color eInk / ePaper 250x122 Display Shield
+- https://www.aliexpress.com/item/1005003020667903.html
+#### Version 1.4.4
+- interim update to solve compiler warnings (ALL for GCC for AVR)
+#### Version 1.4.3
+- added option to select an alternate HW SPI channel and/or SPI settings
+- by method selectSPI(SPIClass& spi, SPISettings spi_settings) of driver base class GxEPD2_EPD
+- by calling selectSPI before calling init() of display class
+- or by calling extended init() method that has these parameters added
+- tested with RPi Pico RP2040 using Good Display DESPI-PICO connection shield
+- updated GxEPD2_Example to show use with DESPI-PICO
+- DESPI-PICO: see https://www.good-display.com/product/393.html
+#### Version 1.4.2
+- added support for Waveshare 3.7" b/w board and panel ED037TC1
+- waveform tables for ED037TC1 are taken unmodified from Waveshare demo code
+- refresh behavior with ED037TC1 with GxEPD2 is not perfect, could not be resolved
+- ISSUE RESOLVED: RESE needs to be 3 ohms on DESPI-C02 for this panel, Waveshare schematics is wrong
+- added differential refresh for GDEH116T91, waveform table taken from ED037TC1
+- differential refresh for GDEH116T91 looks ok; can be disabled with hasFastPartialUpdate = false
+- increased sustain phase for differential refresh on GDEW042T2
+#### Version 1.4.1
+- fix for Waveshare "clever" reset circuit: power controller before reset pulse
+#### Version 1.4.0
+- changed the default reset duration to 10ms instead of 20ms
+- changed the delay after reset to 10ms or reset duration, whichever is higher, instead of 200ms
+- added a busyCallback feature, to allow to service periodic actions during wait for BUSY termination
+- ` // register a callback function to be called during _waitWhileBusy continuously. `
+- ` void setBusyCallback(void (*busyCallback)(const void*), const void* busy_callback_parameter = 0); `
+- added example GxEPD2_RotaryUsingBusyCallback.ino
+#### Version 1.3.9
 - fix for STM32 official package pin number range (int16_t)
 - fix for refresh(int16_t x, int16_t y, int16_t w, int16_t h) methods screen intersection
 #### Version 1.3.8

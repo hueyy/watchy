@@ -6,6 +6,7 @@
 #include <Fonts/FreeSansBold9pt7b.h> //include any fonts you want to use
 #include "MadeSunflower39pt7b.h"
 #include "stars.h"
+#include "settings.h"
 
 #define STAR_COUNT 900
 
@@ -50,9 +51,9 @@ struct xyPoint rotatePointAround(int x, int y, int ox, int oy, double angle) {
 
 class StarryHorizon : public Watchy {
     public:
-        StarryHorizon() {
+        StarryHorizon(const watchySettings& s) : Watchy(s) {
           // uncomment to re-generate stars
-//          initStars();
+          // initStars();
         }
         void drawWatchFace(){
           display.fillScreen(GxEPD_BLACK);
@@ -82,14 +83,14 @@ class StarryHorizon : public Watchy {
           int minute = (int)currentTime.Minute;
           double minuteAngle = ((2.0 * M_PI) / 60.0) * (double)minute;
 //          printf("Minute %d, angle %f\n", (int)currentTime.Minute, minuteAngle);
-            
+
           for(int starI = 0; starI < STAR_COUNT; starI++) {
             int starX = stars[starI].x;
             int starY = stars[starI].y;
             int starR = stars[starI].r;
 
             struct xyPoint rotated = rotatePointAround(starX, starY, 100, 100, minuteAngle);
-            if(rotated.x < 0 || rotated.y < 0 || rotated.x > 200 || rotated.y > horizonY) { 
+            if(rotated.x < 0 || rotated.y < 0 || rotated.x > 200 || rotated.y > horizonY) {
               continue;
             }
             if(starR == 0) {
@@ -139,7 +140,7 @@ class StarryHorizon : public Watchy {
         }
 };
 
-StarryHorizon face; //instantiate watchface
+StarryHorizon face(settings); //instantiate watchface
 
 void setup() {
   face.init(); //call init in setup
