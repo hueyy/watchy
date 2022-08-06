@@ -6,20 +6,24 @@
 
   <body>
     <h1>Watchy BLE Debugging</h1>
-    <button>
+    <button onclick="bleConnect()">
       Connect
     </button>
     <script>
-      const watchyUUID = `cd77498e-1ac8-48b6-aba8-4161c7342fce`
-      const bleConnect = async (event) => {
-        event.preventDefault()
+      const watchyUUID = `86b12870-4b70-4893-8ce6-9864fc00374d`
+      const batteryCharacteristicUUID = `86b12871-4b70-4893-8ce6-9864fc00374d`
 
+      const bleConnect = async () => {
         const device = await navigator.bluetooth.requestDevice({
           filters: [{
             services: [watchyUUID]
           }]
         })
-        console.log(device)
+        const server = await device.gatt.connect()
+        const service = await server.getPrimaryService(watchyUUID)
+        console.log(service)
+        const battery = await (await service.getCharacteristic(batteryCharacteristicUUID)).readValue()
+        console.log(battery)
       }
     </script>
   </body>

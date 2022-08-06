@@ -2,7 +2,6 @@
 
 RTC_DATA_ATTR bool dark_mode = false;
 RTC_DATA_ATTR bool sleep_mode = false;
-RTC_DATA_ATTR bool DEBUG_MODE = false;
 
 RTC_DATA_ATTR uint8_t watchfacesMenuIndex;
 RTC_DATA_ATTR int8_t watchface_index = 0;
@@ -468,7 +467,7 @@ void WatchyCustom::handleButtonPress()
     }
     else if (IS_BTN_LEFT_UP)
     {
-      // showSGWeather();
+      bleConnect();
       return;
     }
     else if (IS_BTN_LEFT_DOWN)

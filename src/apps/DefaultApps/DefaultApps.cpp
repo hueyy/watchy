@@ -212,21 +212,68 @@ void WatchyCustom::setTime()
   showMenu(menuIndex, false);
 }
 
-void WatchyCustom::bleBegin()
-{
-  BLEDevice::init(BLE_DEVICE_NAME);
-}
-
 void WatchyCustom::bleConnect()
 {
-  BLE BT;
+  display.init(0, false);
   display.setFullWindow();
   display.fillScreen(BACKGROUND_COLOUR);
   display.setFont(&FreeMonoBold9pt7b);
   display.setTextColor(FOREGROUND_COLOUR);
   display.setCursor(20, 30);
+  display.println("BLUETOOTH");
+
+  bleBegin();
 
   display.display(true, dark_mode);
   display.hibernate();
   guiState = APP_STATE;
+
+  CustomBLEStatus status = CUSTOMBLE_READY;
+
+  while(1){
+    status = bleStatus();
+    switch(status){
+      case CUSTOMBLE_READY:
+        display.fillScreen(BACKGROUND_COLOUR);
+        display.setFont(&FreeMonoBold9pt7b);
+        display.setTextColor(FOREGROUND_COLOUR);
+        display.setCursor(20, 30);
+        display.println("DISCOVERABLE");
+        display.display(true, dark_mode);
+        delay(2000);
+        break;
+      
+      case CUSTOMBLE_CONNECTED:
+        display.fillScreen(BACKGROUND_COLOUR);
+        display.setFont(&FreeMonoBold9pt7b);
+        display.setTextColor(FOREGROUND_COLOUR);
+        display.setCursor(20, 30);
+        display.println("CONNECTED");
+        display.display(true, dark_mode);
+        break;
+
+      case CUSTOMBLE_DISCONNECTED:
+        display.fillScreen(BACKGROUND_COLOUR);
+        display.setFont(&FreeMonoBold9pt7b);
+        display.setTextColor(FOREGROUND_COLOUR);
+        display.setCursor(20, 30);
+        display.println("DISCONNECTED");
+        display.display(true, dark_mode);
+        break;
+      
+      case CUSTOMBLE_UPDATING:
+        display.fillScreen(BACKGROUND_COLOUR);
+        display.setFont(&FreeMonoBold9pt7b);
+        display.setTextColor(FOREGROUND_COLOUR);
+        display.setCursor(20, 30);
+        display.println("SYNCING");
+        display.display(true, dark_mode);
+        break;
+    }
+    delay(100);
+  }
+
+  WiFi.mode(WIFI_OFF);
+  btStop();
+  showMenu(menuIndex, false);
 }

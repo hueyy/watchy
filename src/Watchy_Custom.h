@@ -16,6 +16,8 @@
 // persistent data
 extern RTC_DATA_ATTR bool dark_mode;
 
+#define DEBUG_MODE true
+
 #define BATTERY_OFFSET 0.105
 #define STEP_LENGTH 45 // cm
 #define MSS_24H_API_URL "http://www.weather.gov.sg/mobile/json/rest-get-24-hour-forecast.json"
@@ -32,6 +34,13 @@ extern RTC_DATA_ATTR bool dark_mode;
 // additional guiState definitions
 #define CUSTOM_APP_STATE 20
 #define WATCHFACES_MENU_STATE 21
+
+enum CustomBLEStatus {
+  CUSTOMBLE_CONNECTED,
+  CUSTOMBLE_DISCONNECTED,
+  CUSTOMBLE_UPDATING, // syncing
+  CUSTOMBLE_READY, // ready to connect
+};
 
 class WatchyCustom : public Watchy
 {
@@ -61,8 +70,9 @@ public:
   void showBattery();
   void showBuzz();
   void setTime();
-  void bleBegin();
   void bleConnect();
+  void bleBegin();
+  CustomBLEStatus bleStatus();
 
   // Lupine
   void lupineDrawWatchFace();
