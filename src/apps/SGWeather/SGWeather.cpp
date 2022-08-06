@@ -32,6 +32,8 @@ const unsigned char *WatchyCustom::getWeatherIcon(WeatherType weatherType)
     return rain;
   case Weather_PartlyCloudy:
     return cloudsun;
+  default:
+    return rain;
   }
 }
 
@@ -64,10 +66,9 @@ WeatherType WatchyCustom::getWeatherType(String weatherString)
   {
     return Weather_Sunny;
   }
-  else
-  {
-    Serial.println("weatherString: " + weatherString);
-  }
+
+  Serial.println("weatherString: " + weatherString);
+  return Weather_Rain;
 }
 
 void WatchyCustom::getSGWeather()

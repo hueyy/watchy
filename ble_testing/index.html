@@ -1,0 +1,27 @@
+<html>
+
+  <head>
+    <title>Watchy BLE Debugging</title>
+  </head>
+
+  <body>
+    <h1>Watchy BLE Debugging</h1>
+    <button>
+      Connect
+    </button>
+    <script>
+      const watchyUUID = `cd77498e-1ac8-48b6-aba8-4161c7342fce`
+      const bleConnect = async (event) => {
+        event.preventDefault()
+
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{
+            services: [watchyUUID]
+          }]
+        })
+        console.log(device)
+      }
+    </script>
+  </body>
+
+</html>

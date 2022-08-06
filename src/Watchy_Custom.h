@@ -36,8 +36,9 @@ extern RTC_DATA_ATTR bool dark_mode;
 class WatchyCustom : public Watchy
 {
 public:
-  WatchyCustom();
+  using Watchy::Watchy;
 
+  void interruptAlarm(bool enable);
   void bumpWatchFaceIndex();
   void init(String datetime = "");
 
@@ -60,6 +61,8 @@ public:
   void showBattery();
   void showBuzz();
   void setTime();
+  void bleBegin();
+  void bleConnect();
 
   // Lupine
   void lupineDrawWatchFace();
@@ -107,7 +110,6 @@ public:
 
   void handleButtonPress();
 
-  void _rtcConfig(String datetime);
   void _bmaConfig();
   static uint16_t _readRegister(uint8_t address, uint8_t reg, uint8_t *data, uint16_t len);
   static uint16_t _writeRegister(uint8_t address, uint8_t reg, uint8_t *data, uint16_t len);

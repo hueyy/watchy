@@ -196,8 +196,9 @@ public:
   }
 
   // display buffer content to screen, useful for full screen buffer
-  void display(bool partial_update_mode = false)
+  void display(bool partial_update_mode = false, bool blackBorder = 0)
   {
+    epd2.borderColour = blackBorder;
     if (partial_update_mode)
       epd2.writeImage(_buffer, 0, 0, WIDTH, _page_height);
     else

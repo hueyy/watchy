@@ -1,35 +1,10 @@
 #include "Watchy_Custom.h"
 
-void WatchyCustom::_rtcConfig(String datetime)
-{ // taken directly from Watchy library
-  if (datetime != NULL)
-  {
-    const time_t FUDGE(30); //fudge factor to allow for upload time, etc. (seconds, YMMV)
-    tmElements_t tm;
-    tm.Year = getValue(datetime, ':', 0).toInt() - YEAR_OFFSET; //offset from 1970, since year is stored in uint8_t
-    tm.Month = getValue(datetime, ':', 1).toInt();
-    tm.Day = getValue(datetime, ':', 2).toInt();
-    tm.Hour = getValue(datetime, ':', 3).toInt();
-    tm.Minute = getValue(datetime, ':', 4).toInt();
-    tm.Second = getValue(datetime, ':', 5).toInt();
-
-    time_t t = makeTime(tm) + FUDGE;
-    RTC.set(t);
-  }
-
-  //https://github.com/JChristensen/DS3232RTC
-  RTC.squareWave(SQWAVE_NONE); //disable square wave output
-  //RTC.set(compileTime()); //set RTC time to compile time
-  RTC.setAlarm(ALM2_EVERY_MINUTE, 0, 0, 0, 0); //alarm wakes up Watchy every minute
-  RTC.alarmInterrupt(ALARM_2, true);           //enable alarm interrupt
-  RTC.read(currentTime);
-}
-
 void WatchyCustom::_bmaConfig()
 { // taken directly from Watchy library
   if (sensor.begin(_readRegister, _writeRegister, delay) == false)
   {
-    //fail to init BMA
+    // fail to init BMA
     return;
   }
 

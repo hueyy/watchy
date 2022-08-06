@@ -13,8 +13,7 @@
 
 #include "GxEPD2_154_D67.h"
 
-GxEPD2_154_D67::GxEPD2_154_D67(int16_t cs, int16_t dc, int16_t rst, int16_t busy) :
-  GxEPD2_EPD(cs, dc, rst, busy, HIGH, 10000000, WIDTH, HEIGHT, panel, hasColor, hasPartialUpdate, hasFastPartialUpdate)
+GxEPD2_154_D67::GxEPD2_154_D67(int16_t cs, int16_t dc, int16_t rst, int16_t busy) : GxEPD2_EPD(cs, dc, rst, busy, HIGH, 10000000, WIDTH, HEIGHT, panel, hasColor, hasPartialUpdate, hasFastPartialUpdate)
 {
 }
 
@@ -27,15 +26,18 @@ void GxEPD2_154_D67::clearScreen(uint8_t value)
 
 void GxEPD2_154_D67::writeScreenBuffer(uint8_t value)
 {
-  if (!_using_partial_mode) _Init_Part();
-  if (_initial_write) _writeScreenBuffer(0x26, value); // set previous
-  _writeScreenBuffer(0x24, value); // set current
-  _initial_write = false; // initial full screen buffer clean done
+  if (!_using_partial_mode)
+    _Init_Part();
+  if (_initial_write)
+    _writeScreenBuffer(0x26, value); // set previous
+  _writeScreenBuffer(0x24, value);   // set current
+  _initial_write = false;            // initial full screen buffer clean done
 }
 
 void GxEPD2_154_D67::writeScreenBufferAgain(uint8_t value)
 {
-  if (!_using_partial_mode) _Init_Part();
+  if (!_using_partial_mode)
+    _Init_Part();
   _writeScreenBuffer(0x24, value); // set current
 }
 
@@ -66,21 +68,24 @@ void GxEPD2_154_D67::writeImageAgain(const uint8_t bitmap[], int16_t x, int16_t 
 
 void GxEPD2_154_D67::_writeImage(uint8_t command, const uint8_t bitmap[], int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
-  if (_initial_write) writeScreenBuffer(); // initial full screen buffer clean
-  delay(1); // yield() to avoid WDT on ESP8266 and ESP32
-  int16_t wb = (w + 7) / 8; // width bytes, bitmaps are padded
-  x -= x % 8; // byte boundary
-  w = wb * 8; // byte boundary
-  int16_t x1 = x < 0 ? 0 : x; // limit
-  int16_t y1 = y < 0 ? 0 : y; // limit
-  int16_t w1 = x + w < int16_t(WIDTH) ? w : int16_t(WIDTH) - x; // limit
+  if (_initial_write)
+    writeScreenBuffer();                                          // initial full screen buffer clean
+  delay(1);                                                       // yield() to avoid WDT on ESP8266 and ESP32
+  int16_t wb = (w + 7) / 8;                                       // width bytes, bitmaps are padded
+  x -= x % 8;                                                     // byte boundary
+  w = wb * 8;                                                     // byte boundary
+  int16_t x1 = x < 0 ? 0 : x;                                     // limit
+  int16_t y1 = y < 0 ? 0 : y;                                     // limit
+  int16_t w1 = x + w < int16_t(WIDTH) ? w : int16_t(WIDTH) - x;   // limit
   int16_t h1 = y + h < int16_t(HEIGHT) ? h : int16_t(HEIGHT) - y; // limit
   int16_t dx = x1 - x;
   int16_t dy = y1 - y;
   w1 -= dx;
   h1 -= dy;
-  if ((w1 <= 0) || (h1 <= 0)) return;
-  if (!_using_partial_mode) _Init_Part();
+  if ((w1 <= 0) || (h1 <= 0))
+    return;
+  if (!_using_partial_mode)
+    _Init_Part();
   _setPartialRamArea(x1, y1, w1, h1);
   _writeCommand(command);
   for (int16_t i = 0; i < h1; i++)
@@ -102,7 +107,8 @@ void GxEPD2_154_D67::_writeImage(uint8_t command, const uint8_t bitmap[], int16_
       {
         data = bitmap[idx];
       }
-      if (invert) data = ~data;
+      if (invert)
+        data = ~data;
       _writeData(data);
     }
   }
@@ -116,7 +122,7 @@ void GxEPD2_154_D67::writeImagePart(const uint8_t bitmap[], int16_t x_part, int1
 }
 
 void GxEPD2_154_D67::writeImagePartAgain(const uint8_t bitmap[], int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
-    int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+                                         int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   _writeImagePart(0x24, bitmap, x_part, y_part, w_bitmap, h_bitmap, x, y, w, h, invert, mirror_y, pgm);
 }
@@ -124,27 +130,33 @@ void GxEPD2_154_D67::writeImagePartAgain(const uint8_t bitmap[], int16_t x_part,
 void GxEPD2_154_D67::_writeImagePart(uint8_t command, const uint8_t bitmap[], int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
                                      int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
-  if (_initial_write) writeScreenBuffer(); // initial full screen buffer clean
-  delay(1); // yield() to avoid WDT on ESP8266 and ESP32
-  if ((w_bitmap < 0) || (h_bitmap < 0) || (w < 0) || (h < 0)) return;
-  if ((x_part < 0) || (x_part >= w_bitmap)) return;
-  if ((y_part < 0) || (y_part >= h_bitmap)) return;
-  int16_t wb_bitmap = (w_bitmap + 7) / 8; // width bytes, bitmaps are padded
-  x_part -= x_part % 8; // byte boundary
-  w = w_bitmap - x_part < w ? w_bitmap - x_part : w; // limit
-  h = h_bitmap - y_part < h ? h_bitmap - y_part : h; // limit
-  x -= x % 8; // byte boundary
-  w = 8 * ((w + 7) / 8); // byte boundary, bitmaps are padded
-  int16_t x1 = x < 0 ? 0 : x; // limit
-  int16_t y1 = y < 0 ? 0 : y; // limit
-  int16_t w1 = x + w < int16_t(WIDTH) ? w : int16_t(WIDTH) - x; // limit
+  if (_initial_write)
+    writeScreenBuffer(); // initial full screen buffer clean
+  delay(1);              // yield() to avoid WDT on ESP8266 and ESP32
+  if ((w_bitmap < 0) || (h_bitmap < 0) || (w < 0) || (h < 0))
+    return;
+  if ((x_part < 0) || (x_part >= w_bitmap))
+    return;
+  if ((y_part < 0) || (y_part >= h_bitmap))
+    return;
+  int16_t wb_bitmap = (w_bitmap + 7) / 8;                         // width bytes, bitmaps are padded
+  x_part -= x_part % 8;                                           // byte boundary
+  w = w_bitmap - x_part < w ? w_bitmap - x_part : w;              // limit
+  h = h_bitmap - y_part < h ? h_bitmap - y_part : h;              // limit
+  x -= x % 8;                                                     // byte boundary
+  w = 8 * ((w + 7) / 8);                                          // byte boundary, bitmaps are padded
+  int16_t x1 = x < 0 ? 0 : x;                                     // limit
+  int16_t y1 = y < 0 ? 0 : y;                                     // limit
+  int16_t w1 = x + w < int16_t(WIDTH) ? w : int16_t(WIDTH) - x;   // limit
   int16_t h1 = y + h < int16_t(HEIGHT) ? h : int16_t(HEIGHT) - y; // limit
   int16_t dx = x1 - x;
   int16_t dy = y1 - y;
   w1 -= dx;
   h1 -= dy;
-  if ((w1 <= 0) || (h1 <= 0)) return;
-  if (!_using_partial_mode) _Init_Part();
+  if ((w1 <= 0) || (h1 <= 0))
+    return;
+  if (!_using_partial_mode)
+    _Init_Part();
   _setPartialRamArea(x1, y1, w1, h1);
   _writeCommand(command);
   for (int16_t i = 0; i < h1; i++)
@@ -166,14 +178,15 @@ void GxEPD2_154_D67::_writeImagePart(uint8_t command, const uint8_t bitmap[], in
       {
         data = bitmap[idx];
       }
-      if (invert) data = ~data;
+      if (invert)
+        data = ~data;
       _writeData(data);
     }
   }
   delay(1); // yield() to avoid WDT on ESP8266 and ESP32
 }
 
-void GxEPD2_154_D67::writeImage(const uint8_t* black, const uint8_t* color, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+void GxEPD2_154_D67::writeImage(const uint8_t *black, const uint8_t *color, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (black)
   {
@@ -181,7 +194,7 @@ void GxEPD2_154_D67::writeImage(const uint8_t* black, const uint8_t* color, int1
   }
 }
 
-void GxEPD2_154_D67::writeImagePart(const uint8_t* black, const uint8_t* color, int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
+void GxEPD2_154_D67::writeImagePart(const uint8_t *black, const uint8_t *color, int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
                                     int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (black)
@@ -190,7 +203,7 @@ void GxEPD2_154_D67::writeImagePart(const uint8_t* black, const uint8_t* color, 
   }
 }
 
-void GxEPD2_154_D67::writeNative(const uint8_t* data1, const uint8_t* data2, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+void GxEPD2_154_D67::writeNative(const uint8_t *data1, const uint8_t *data2, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (data1)
   {
@@ -213,7 +226,7 @@ void GxEPD2_154_D67::drawImagePart(const uint8_t bitmap[], int16_t x_part, int16
   writeImagePartAgain(bitmap, x_part, y_part, w_bitmap, h_bitmap, x, y, w, h, invert, mirror_y, pgm);
 }
 
-void GxEPD2_154_D67::drawImage(const uint8_t* black, const uint8_t* color, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+void GxEPD2_154_D67::drawImage(const uint8_t *black, const uint8_t *color, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (black)
   {
@@ -221,7 +234,7 @@ void GxEPD2_154_D67::drawImage(const uint8_t* black, const uint8_t* color, int16
   }
 }
 
-void GxEPD2_154_D67::drawImagePart(const uint8_t* black, const uint8_t* color, int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
+void GxEPD2_154_D67::drawImagePart(const uint8_t *black, const uint8_t *color, int16_t x_part, int16_t y_part, int16_t w_bitmap, int16_t h_bitmap,
                                    int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (black)
@@ -230,7 +243,7 @@ void GxEPD2_154_D67::drawImagePart(const uint8_t* black, const uint8_t* color, i
   }
 }
 
-void GxEPD2_154_D67::drawNative(const uint8_t* data1, const uint8_t* data2, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
+void GxEPD2_154_D67::drawNative(const uint8_t *data1, const uint8_t *data2, int16_t x, int16_t y, int16_t w, int16_t h, bool invert, bool mirror_y, bool pgm)
 {
   if (data1)
   {
@@ -240,10 +253,12 @@ void GxEPD2_154_D67::drawNative(const uint8_t* data1, const uint8_t* data2, int1
 
 void GxEPD2_154_D67::refresh(bool partial_update_mode)
 {
-  if (partial_update_mode) refresh(0, 0, WIDTH, HEIGHT);
+  if (partial_update_mode)
+    refresh(0, 0, WIDTH, HEIGHT);
   else
   {
-    if (_using_partial_mode) _Init_Full();
+    if (_using_partial_mode)
+      _Init_Full();
     _Update_Full();
     _initial_refresh = false; // initial full update done
   }
@@ -251,20 +266,24 @@ void GxEPD2_154_D67::refresh(bool partial_update_mode)
 
 void GxEPD2_154_D67::refresh(int16_t x, int16_t y, int16_t w, int16_t h)
 {
-  if (_initial_refresh) return refresh(false); // initial update needs be full update
+  if (_initial_refresh)
+    return refresh(false); // initial update needs be full update
   // intersection with screen
-  int16_t w1 = x < 0 ? w + x : w; // reduce
-  int16_t h1 = y < 0 ? h + y : h; // reduce
-  int16_t x1 = x < 0 ? 0 : x; // limit
-  int16_t y1 = y < 0 ? 0 : y; // limit
-  w1 = x1 + w1 < int16_t(WIDTH) ? w1 : int16_t(WIDTH) - x1; // limit
+  int16_t w1 = x < 0 ? w + x : w;                             // reduce
+  int16_t h1 = y < 0 ? h + y : h;                             // reduce
+  int16_t x1 = x < 0 ? 0 : x;                                 // limit
+  int16_t y1 = y < 0 ? 0 : y;                                 // limit
+  w1 = x1 + w1 < int16_t(WIDTH) ? w1 : int16_t(WIDTH) - x1;   // limit
   h1 = y1 + h1 < int16_t(HEIGHT) ? h1 : int16_t(HEIGHT) - y1; // limit
-  if ((w1 <= 0) || (h1 <= 0)) return; 
+  if ((w1 <= 0) || (h1 <= 0))
+    return;
   // make x1, w1 multiple of 8
   w1 += x1 % 8;
-  if (w1 % 8 > 0) w1 += 8 - w1 % 8;
+  if (w1 % 8 > 0)
+    w1 += 8 - w1 % 8;
   x1 -= x1 % 8;
-  if (!_using_partial_mode) _Init_Part();
+  if (!_using_partial_mode)
+    _Init_Part();
   _setPartialRamArea(x1, y1, w1, h1);
   _Update_Part();
 }
@@ -331,15 +350,17 @@ void GxEPD2_154_D67::_PowerOff()
 
 void GxEPD2_154_D67::_InitDisplay()
 {
-  if (_hibernating) _reset();
-  delay(10); // 10ms according to specs
+  if (_hibernating)
+    _reset();
+  delay(10);           // 10ms according to specs
   _writeCommand(0x12); // soft reset
-  delay(10); // 10ms according to specs
+  delay(10);           // 10ms according to specs
   _writeCommand(0x01); // Driver output control
   _writeData(0xC7);
   _writeData(0x00);
   _writeData(0x00);
   _writeCommand(0x3C); // BorderWavefrom
+  _writeData(borderColour ? 0x02 : 0x05);
   _writeData(0x05);
   _writeCommand(0x18); // Read built-in temperature sensor
   _writeData(0x80);

@@ -6,8 +6,8 @@ RTC_DATA_ATTR bool DEBUG_MODE = true;
 
 RTC_DATA_ATTR uint8_t watchfacesMenuIndex;
 RTC_DATA_ATTR int8_t watchface_index = 0;
-RTC_DATA_ATTR int8_t timeSyncCounter = TIME_SYNC_INTERVAL;
-RTC_DATA_ATTR int8_t sgWeatherCounter = SG_WEATHER_SYNC_INTERVAL;
+RTC_DATA_ATTR int8_t timeSyncCounter = UPDATE_INTERVAL;
+RTC_DATA_ATTR int8_t sgWeatherCounter = UPDATE_INTERVAL;
 RTC_DATA_ATTR unsigned long pressedDuration = 0;
 
 const uint16_t SHORT_PRESS_TIME = 500;
@@ -32,57 +32,63 @@ const char *watchfacesMenu[] = {
     "Standard"};
 int16_t watchfacesMenuOptions = sizeof(watchfacesMenu) / sizeof(watchfacesMenu[0]);
 
-WatchyCustom::WatchyCustom() {}
+void WatchyCustom::interruptAlarm(bool enable)
+{
+  if (enable)
+  {
+    RTC.clearAlarm();
+    if (RTC.rtcType == DS3231)
+    {
+      RTC.rtc_ds.alarmInterrupt(DS3232RTC::ALARM_2, true); // enable alarm interrupt
+    }
+    else
+    {
+      int nextAlarmMinute = RTC.rtc_pcf.getMinute();
+      nextAlarmMinute = (nextAlarmMinute == 59) ? 0 : (nextAlarmMinute + 1);
+      RTC.rtc_pcf.setAlarm(nextAlarmMinute, 99, 99, 99);
+    }
+  }
+  else
+  {
+    if (RTC.rtcType == PCF8563)
+      RTC.rtc_pcf.resetAlarm();
+    else
+      RTC.rtc_ds.alarmInterrupt(DS3232RTC::ALARM_2, false);
+  }
+}
 
 void WatchyCustom::init(String datetime)
 {
   Serial.begin(115200);
 
   esp_sleep_wakeup_cause_t wakeup_reason;
-  wakeup_reason = esp_sleep_get_wakeup_cause(); //get wake up reason
-  Wire.begin(SDA, SCL);                         //init i2c
+  wakeup_reason = esp_sleep_get_wakeup_cause(); // get wake up reason
+  Wire.begin(SDA, SCL);                         // init i2c
+  RTC.init();
+
+  display.init(0, true, 10, true); // 10ms by spec, and fast pulldown reset
+  display.epd2.setBusyCallback(displayBusyCallback);
 
   switch (wakeup_reason)
   {
-  case ESP_SLEEP_WAKEUP_TIMER: //ESP Internal RTC
-    if (guiState == WATCHFACE_STATE)
-    {
-      RTC.read(currentTime);
-      currentTime.Minute++;
-      tmElements_t tm;
-      tm.Month = currentTime.Month;
-      tm.Day = currentTime.Day;
-      tm.Year = currentTime.Year;
-      tm.Hour = currentTime.Hour;
-      tm.Minute = currentTime.Minute;
-      tm.Second = 0;
-      time_t t = makeTime(tm);
-      RTC.set(t);
-      RTC.read(currentTime);
-      showWatchFace(true); //partial updates on tick
-    }
-    timeSyncCounter++;
-    sgWeatherCounter++;
-    doWiFiUpdate();
-    break;
-  case ESP_SLEEP_WAKEUP_EXT0: //RTC Alarm
-    RTC.alarm(ALARM_2);
+  case ESP_SLEEP_WAKEUP_EXT0: // RTC Alarm
     if (guiState == WATCHFACE_STATE)
     {
       RTC.read(currentTime);
       if (currentTime.Hour == SLEEP_HOUR_START && currentTime.Minute == SLEEP_MINUTE_START)
       {
         sleep_mode = true;
-        RTC.alarmInterrupt(ALARM_2, false);
+        interruptAlarm(false);
       }
-      showWatchFace(true); //partial updates on tick
+      showWatchFace(true); // partial updates on tick
     }
     break;
   case ESP_SLEEP_WAKEUP_EXT1:
     if (sleep_mode)
     {
       sleep_mode = false;
-      RTC.alarmInterrupt(ALARM_2, true);
+      interruptAlarm(true);
+      RTC.read(currentTime);
       showWatchFace(false);
     }
     else
@@ -91,9 +97,10 @@ void WatchyCustom::init(String datetime)
     }
     break;
   default:
-    _rtcConfig(datetime);
+    RTC.config(datetime);
     _bmaConfig();
-    showWatchFace(false); //full update on reset
+    RTC.read(currentTime);
+    showWatchFace(false); // full update on reset
     break;
   }
   deepSleep();
@@ -113,7 +120,7 @@ void WatchyCustom::bumpWatchFaceIndex()
 
 void WatchyCustom::disableWatchFace()
 {
-  RTC.alarmInterrupt(ALARM_2, false);
+  interruptAlarm(false);
 }
 
 bool WatchyCustom::getSleepMode()
@@ -259,32 +266,6 @@ bool WatchyCustom::connectToWiFi()
   return WIFI_CONFIGURED;
 }
 
-void WatchyCustom::syncTime()
-{
-  Serial.println("Syncing time...");
-
-  struct tm timeinfo;
-
-  //get NTP Time
-  configTime(GMT_OFFSET_SEC, DAYLIGHT_OFFSET_SEC, NTP_SERVER);
-  delay(4000); //delay 4 secods so configTime can finish recieving the time from the internet
-  getLocalTime(&timeinfo);
-
-  // convert NTP time into proper format
-  tmElements_t tm;
-  tm.Month = timeinfo.tm_mon + 1; // 0-11 based month so we have to add 1
-  tm.Day = timeinfo.tm_mday;
-  tm.Year = timeinfo.tm_year + 1900 - YEAR_OFFSET; //offset from 1970, since year is stored in uint8_t
-  tm.Hour = timeinfo.tm_hour;
-  tm.Minute = timeinfo.tm_min;
-  tm.Second = timeinfo.tm_sec;
-  time_t t = makeTime(tm);
-
-  //set the RTC time to the NTP time
-  Serial.println("Setting time to: " + String(t));
-  RTC.set(t);
-}
-
 void WatchyCustom::showWiFiConnectingScreen()
 {
   display.fillScreen(FOREGROUND_COLOUR);
@@ -296,8 +277,8 @@ void WatchyCustom::showWiFiConnectingScreen()
 void WatchyCustom::doWiFiUpdate()
 {
   // update all the things that should be updated via WiFi
-  bool shouldSyncTime = timeSyncCounter >= TIME_SYNC_INTERVAL && TIME_SYNC_INTERVAL != 0;
-  bool shouldGetWeather = sgWeatherCounter >= SG_WEATHER_SYNC_INTERVAL && SG_WEATHER_SYNC_INTERVAL != 0;
+  bool shouldSyncTime = timeSyncCounter >= UPDATE_INTERVAL && UPDATE_INTERVAL != 0;
+  bool shouldGetWeather = sgWeatherCounter >= UPDATE_INTERVAL && UPDATE_INTERVAL != 0;
   bool wifiNeeded = shouldSyncTime && shouldGetWeather;
 
   if (wifiNeeded)
@@ -315,7 +296,7 @@ void WatchyCustom::doWiFiUpdate()
 
   if (shouldSyncTime)
   {
-    syncTime();
+    Watchy::syncNTP();
     timeSyncCounter = 0;
   }
 
@@ -353,16 +334,16 @@ void WatchyCustom::showMenu(byte menuIndex, bool partialRefresh)
   int16_t yPos;
   int16_t startPos = 0;
 
-  //Code to move the menu if current selected index out of bounds
-  if (menuIndex + MENU_LENGTH > menuOptions)
+  // Code to move the menu if current selected index out of bounds
+  if (menuIndex + menuOptions > menuOptions)
   {
-    startPos = (menuOptions - 1) - (MENU_LENGTH - 1);
+    startPos = (menuOptions - 1) - (menuOptions - 1);
   }
   else
   {
     startPos = menuIndex;
   }
-  for (int i = startPos; i < MENU_LENGTH + startPos; i++)
+  for (int i = startPos; i < menuOptions + startPos; i++)
   {
     yPos = 30 + (MENU_HEIGHT * (i - startPos));
     display.setCursor(0, yPos);
@@ -397,15 +378,15 @@ void WatchyCustom::showWatchFacesMenu(byte menuIndex, bool partialRefresh)
   int16_t yPos;
   int16_t startPos = 0;
 
-  if (menuIndex + MENU_LENGTH > watchfacesMenuOptions)
+  if (menuIndex + watchfacesMenuOptions > watchfacesMenuOptions)
   {
-    startPos = (watchfacesMenuOptions - 1) - (MENU_LENGTH - 1);
+    startPos = (watchfacesMenuOptions - 1) - (watchfacesMenuOptions - 1);
   }
   else
   {
     startPos = menuIndex;
   }
-  for (int i = startPos; i < MENU_LENGTH + startPos; i++)
+  for (int i = startPos; i < watchfacesMenuOptions + startPos; i++)
   {
     yPos = 30 + (MENU_HEIGHT * (i - startPos));
     display.setCursor(0, yPos);
@@ -442,8 +423,10 @@ void WatchyCustom::handleButtonPress()
 
   if (guiState == WATCHFACE_STATE)
   {
+    if(DEBUG_MODE) Serial.println("BUTTON PRESS ON WATCHFACE_STATE");
     if (IS_BTN_RIGHT_UP)
     {
+      if(DEBUG_MODE) Serial.println("vibrateTime");
       RTC.read(currentTime);
       vibrateTime();
       return;

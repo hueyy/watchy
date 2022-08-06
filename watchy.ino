@@ -1,5 +1,7 @@
 #include "src/Watchy_Custom.h"
-WatchyCustom watchy;
+#include "src/settings.h"
+
+WatchyCustom watchy(settings);
 
 void setup()
 {

@@ -43,7 +43,7 @@ void WatchyCustom::setTime()
   int8_t hour = currentTime.Hour;
   int8_t day = currentTime.Day;
   int8_t month = currentTime.Month;
-  int8_t year = currentTime.Year + YEAR_OFFSET - 2000;
+  int8_t year = currentTime.Year + YEAR_OFFSET_DS - 2000;
 
   if (year <= 20)
   { // start at 2021
@@ -138,7 +138,7 @@ void WatchyCustom::setTime()
 
     display.setCursor(5, 80);
     if (setIndex == SET_HOUR)
-    { //blink hour digits
+    { // blink hour digits
       display.setTextColor(blink ? FOREGROUND_COLOUR : BACKGROUND_COLOUR);
     }
     if (hour < 10)
@@ -152,7 +152,7 @@ void WatchyCustom::setTime()
 
     display.setCursor(108, 80);
     if (setIndex == SET_MINUTE)
-    { //blink minute digits
+    { // blink minute digits
       display.setTextColor(blink ? FOREGROUND_COLOUR : BACKGROUND_COLOUR);
     }
     if (minute < 10)
@@ -166,7 +166,7 @@ void WatchyCustom::setTime()
     display.setFont(&FreeMonoBold9pt7b);
     display.setCursor(45, 150);
     if (setIndex == SET_YEAR)
-    { //blink minute digits
+    { // blink minute digits
       display.setTextColor(blink ? FOREGROUND_COLOUR : BACKGROUND_COLOUR);
     }
     display.print(2000 + year);
@@ -175,7 +175,7 @@ void WatchyCustom::setTime()
     display.print("/");
 
     if (setIndex == SET_MONTH)
-    { //blink minute digits
+    { // blink minute digits
       display.setTextColor(blink ? FOREGROUND_COLOUR : BACKGROUND_COLOUR);
     }
     if (month < 10)
@@ -188,7 +188,7 @@ void WatchyCustom::setTime()
     display.print("/");
 
     if (setIndex == SET_DAY)
-    { //blink minute digits
+    { // blink minute digits
       display.setTextColor(blink ? FOREGROUND_COLOUR : BACKGROUND_COLOUR);
     }
     if (day < 10)
@@ -196,20 +196,37 @@ void WatchyCustom::setTime()
       display.print("0");
     }
     display.print(day);
-    display.display(true, dark_mode); //partial refresh
+    display.display(true, dark_mode); // partial refresh
   }
 
-  const time_t FUDGE(10); //fudge factor to allow for upload time, etc. (seconds, YMMV)
   tmElements_t tm;
   tm.Month = month;
   tm.Day = day;
-  tm.Year = year + 2000 - YEAR_OFFSET; //offset from 1970, since year is stored in uint8_t
+  tm.Year = y2kYearToTm(year);
   tm.Hour = hour;
   tm.Minute = minute;
   tm.Second = 0;
 
-  time_t t = makeTime(tm) + FUDGE;
-  RTC.set(t);
+  RTC.set(tm);
 
   showMenu(menuIndex, false);
+}
+
+void WatchyCustom::bleBegin()
+{
+  BLEDevice::init(BLE_DEVICE_NAME);
+}
+
+void WatchyCustom::bleConnect()
+{
+  BLE BT;
+  display.setFullWindow();
+  display.fillScreen(BACKGROUND_COLOUR);
+  display.setFont(&FreeMonoBold9pt7b);
+  display.setTextColor(FOREGROUND_COLOUR);
+  display.setCursor(20, 30);
+
+  display.display(true, dark_mode);
+  display.hibernate();
+  guiState = APP_STATE;
 }
