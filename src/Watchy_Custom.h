@@ -35,11 +35,12 @@ extern RTC_DATA_ATTR bool dark_mode;
 #define CUSTOM_APP_STATE 20
 #define WATCHFACES_MENU_STATE 21
 
-enum CustomBLEStatus {
+enum CustomBLEStatus
+{
   CUSTOMBLE_CONNECTED,
   CUSTOMBLE_DISCONNECTED,
   CUSTOMBLE_UPDATING, // syncing
-  CUSTOMBLE_READY, // ready to connect
+  CUSTOMBLE_READY,    // ready to connect
 };
 
 class WatchyCustom : public Watchy
@@ -70,6 +71,8 @@ public:
   void showBattery();
   void showBuzz();
   void setTime();
+
+  // BLE
   void bleConnect();
   void bleBegin();
   CustomBLEStatus bleStatus();
