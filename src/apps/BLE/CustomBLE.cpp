@@ -4,7 +4,7 @@
 #define CHARACTERISTIC_UUID_BATTERY "86b12871-4b70-4893-8ce6-9864fc00374d"
 #define CHARACTERISTIC_UUID_TIME "86b12872-4b70-4893-8ce6-9864fc00374d"
 
-CustomBLEStatus status = CUSTOMBLE_DISCONNECTED;
+CustomBLEStatus CUSTOM_BLE_STATUS = CUSTOMBLE_DISCONNECTED;
 
 class CustomBLEServerCallbacks : public BLEServerCallbacks
 {
@@ -13,14 +13,14 @@ public:
   {
     if (DEBUG_MODE)
       Serial.println("BLE connected");
-    status = CUSTOMBLE_CONNECTED;
+    CUSTOM_BLE_STATUS = CUSTOMBLE_CONNECTED;
   };
 
   void onDisconnect(BLEServer *pServer)
   {
     if (DEBUG_MODE)
       Serial.println("BLE disconnected");
-    status = CUSTOMBLE_DISCONNECTED;
+    CUSTOM_BLE_STATUS = CUSTOMBLE_DISCONNECTED;
   };
 };
 
@@ -38,9 +38,9 @@ public:
 
 void BLETimeCallbacks::onWrite(BLECharacteristic *RAW_DATA)
 {
-  // String epochString = ;
-  // HOUR.toInt();
-  unsigned long epochTime = atol(RAW_DATA->getValue().c_str());
+  std::string rawData = RAW_DATA->getValue();
+  char *endptr;
+  unsigned long epochTime = strtoul(rawData.c_str(), &endptr, 10);
   tmElements_t tm;
   breakTime((time_t)epochTime, tm);
   Watchy::RTC.set(tm);
@@ -50,12 +50,14 @@ void BLETimeCallbacks::onRead(BLECharacteristic *pTime)
 {
   Watchy::RTC.read(cTime);
   unsigned long epochTime = makeTime(cTime);
-  pTime->setValue(epochTime.c_str());
+  char *buffer;
+  asprintf(&buffer, "%lu", epochTime);
+  pTime->setValue(buffer);
 };
 
 CustomBLEStatus WatchyCustom::bleStatus()
 {
-  return status;
+  return CUSTOM_BLE_STATUS;
 };
 
 void WatchyCustom::bleBegin()
@@ -87,5 +89,5 @@ void WatchyCustom::bleBegin()
 
   pServer->getAdvertising()->addServiceUUID(SERVICE_UUID_DATA);
   pServer->getAdvertising()->start();
-  status = CUSTOMBLE_READY;
+  CUSTOM_BLE_STATUS = CUSTOMBLE_READY;
 };
