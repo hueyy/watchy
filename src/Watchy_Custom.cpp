@@ -467,7 +467,8 @@ void WatchyCustom::handleButtonPress()
     }
     else if (IS_BTN_LEFT_UP)
     {
-      bleConnect();
+      // bleConnect();
+      doWiFiUpdate();
       return;
     }
     else if (IS_BTN_LEFT_DOWN)
