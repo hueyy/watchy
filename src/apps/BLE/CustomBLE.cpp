@@ -4,11 +4,7 @@
 #define CHARACTERISTIC_UUID_BATTERY "86b12871-4b70-4893-8ce6-9864fc00374d"
 #define CHARACTERISTIC_UUID_TIME "86b12872-4b70-4893-8ce6-9864fc00374d"
 
-<<<<<<< HEAD
 CustomBLEStatus CUSTOM_BLE_STATUS = CUSTOMBLE_DISCONNECTED;
-=======
-CustomBLEStatus custom_status = CUSTOMBLE_DISCONNECTED;
->>>>>>> 6ce9113 (chore: update watchy library)
 
 class CustomBLEServerCallbacks : public BLEServerCallbacks
 {
@@ -17,22 +13,14 @@ public:
   {
     if (DEBUG_MODE)
       Serial.println("BLE connected");
-<<<<<<< HEAD
     CUSTOM_BLE_STATUS = CUSTOMBLE_CONNECTED;
-=======
-      custom_status = CUSTOMBLE_CONNECTED;
->>>>>>> 6ce9113 (chore: update watchy library)
   };
 
   void onDisconnect(BLEServer *pServer)
   {
     if (DEBUG_MODE)
       Serial.println("BLE disconnected");
-<<<<<<< HEAD
     CUSTOM_BLE_STATUS = CUSTOMBLE_DISCONNECTED;
-=======
-      custom_status = CUSTOMBLE_DISCONNECTED;
->>>>>>> 6ce9113 (chore: update watchy library)
   };
 };
 
@@ -67,7 +55,7 @@ void BLETimeCallbacks::onRead(BLECharacteristic *pTime)
 
 CustomBLEStatus WatchyCustom::bleStatus()
 {
-  return custom_status;
+  return CUSTOM_BLE_STATUS;
 };
 
 void WatchyCustom::bleBegin()
@@ -99,9 +87,5 @@ void WatchyCustom::bleBegin()
 
   pServer->getAdvertising()->addServiceUUID(SERVICE_UUID_DATA);
   pServer->getAdvertising()->start();
-<<<<<<< HEAD
   CUSTOM_BLE_STATUS = CUSTOMBLE_READY;
-=======
-  custom_status = CUSTOMBLE_READY;
->>>>>>> 6ce9113 (chore: update watchy library)
 };

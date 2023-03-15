@@ -62,7 +62,7 @@ Follow the steps for Arduino above and set `arduino.path` to the folder containi
 
 #### PlatformIO
 
-TODO
+See [SQFMI's docs](https://watchy.sqfmi.com/docs/getting-started).
 
 ## Development
 

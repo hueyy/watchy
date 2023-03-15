@@ -17,6 +17,7 @@ const char *menuItems[] = {
     "Show Accelerometer",
     "Toggle Dark Mode",
     "Set Time",
+    "About",
     "Setup WiFi",
     "Update Firmware"};
 int16_t menuOptions = sizeof(menuItems) / sizeof(menuItems[0]);
@@ -499,9 +500,12 @@ void WatchyCustom::handleButtonPress()
         Watchy::setTime();
         break;
       case 5:
-        Watchy::setupWifi();
+        Watchy::showAbout();
         break;
       case 6:
+        Watchy::setupWifi();
+        break;
+      case 7:
         Watchy::showUpdateFW();
         break;
       default:
