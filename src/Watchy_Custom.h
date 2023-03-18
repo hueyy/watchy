@@ -48,6 +48,7 @@ class WatchyCustom : public Watchy
 public:
   using Watchy::Watchy;
 
+  void customDisplay(bool partialUpdate);
   void interruptAlarm(bool enable);
   void bumpWatchFaceIndex();
   void init(String datetime = "");

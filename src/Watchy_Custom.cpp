@@ -32,6 +32,12 @@ const char *watchfacesMenu[] = {
     "Standard"};
 int16_t watchfacesMenuOptions = sizeof(watchfacesMenu) / sizeof(watchfacesMenu[0]);
 
+void WatchyCustom::customDisplay(bool partialUpdate)
+{
+  display.epd2.darkBorder = dark_mode;
+  display.display(partialUpdate);
+}
+
 void WatchyCustom::interruptAlarm(bool enable)
 {
   if (enable)
@@ -316,7 +322,7 @@ void WatchyCustom::showWatchFace(bool partialRefresh)
   display.init(0, false);
   display.setFullWindow();
   drawWatchFace();
-  display.display(partialRefresh, dark_mode);
+  customDisplay(partialRefresh);
   display.hibernate();
   guiState = WATCHFACE_STATE;
 }
@@ -361,7 +367,7 @@ void WatchyCustom::showMenu(byte menuIndex, bool partialRefresh)
     }
   }
 
-  display.display(partialRefresh, dark_mode);
+  customDisplay(partialRefresh);
 
   guiState = MAIN_MENU_STATE;
 }
@@ -404,7 +410,7 @@ void WatchyCustom::showWatchFacesMenu(byte menuIndex, bool partialRefresh)
     }
   }
 
-  display.display(partialRefresh, dark_mode);
+  customDisplay(partialRefresh);
 
   guiState = WATCHFACES_MENU_STATE;
 }
@@ -423,10 +429,12 @@ void WatchyCustom::handleButtonPress()
 
   if (guiState == WATCHFACE_STATE)
   {
-    if(DEBUG_MODE) Serial.println("BUTTON PRESS ON WATCHFACE_STATE");
+    if (DEBUG_MODE)
+      Serial.println("BUTTON PRESS ON WATCHFACE_STATE");
     if (IS_BTN_RIGHT_UP)
     {
-      if(DEBUG_MODE) Serial.println("vibrateTime");
+      if (DEBUG_MODE)
+        Serial.println("vibrateTime");
       RTC.read(currentTime);
       vibrateTime();
       return;

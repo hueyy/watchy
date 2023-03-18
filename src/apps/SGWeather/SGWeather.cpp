@@ -170,7 +170,7 @@ void WatchyCustom::showSGWeather()
       zeroPad(currentSGWeather.temperature.low) + String("-") + zeroPad(currentSGWeather.temperature.high) + String(" C"));
   display.drawCircle(169, 173, 2, GxEPD_BLACK);
 
-  display.display(false, dark_mode);
+  customDisplay(false);
   display.hibernate();
 
   guiState = CUSTOM_APP_STATE;

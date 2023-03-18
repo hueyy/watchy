@@ -3,3 +3,4 @@
 /.gitsecret/keys
 /.pio
 /packages_dir
+/libdeps

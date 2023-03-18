@@ -13,7 +13,7 @@ void WatchyCustom::showBattery()
   display.setCursor(70, 80);
   display.print(voltage);
   display.println("V");
-  display.display(true, dark_mode);
+  customDisplay(true);
   display.hibernate();
 
   guiState = APP_STATE;
@@ -27,7 +27,7 @@ void WatchyCustom::showBuzz()
   display.setTextColor(FOREGROUND_COLOUR);
   display.setCursor(70, 80);
   display.println("Buzz!");
-  display.display(false, dark_mode);
+  customDisplay(false);
   Watchy::vibMotor();
   showMenu(menuIndex, false);
 }
@@ -196,7 +196,7 @@ void WatchyCustom::setTime()
       display.print("0");
     }
     display.print(day);
-    display.display(true, dark_mode); // partial refresh
+    customDisplay(true); // partial refresh
   }
 
   tmElements_t tm;
@@ -224,51 +224,53 @@ void WatchyCustom::bleConnect()
 
   bleBegin();
 
-  display.display(true, dark_mode);
+  customDisplay(true);
   display.hibernate();
   guiState = APP_STATE;
 
   CustomBLEStatus status = CUSTOMBLE_READY;
 
-  while(1){
+  while (1)
+  {
     status = bleStatus();
-    switch(status){
-      case CUSTOMBLE_READY:
-        display.fillScreen(BACKGROUND_COLOUR);
-        display.setFont(&FreeMonoBold9pt7b);
-        display.setTextColor(FOREGROUND_COLOUR);
-        display.setCursor(20, 30);
-        display.println("DISCOVERABLE");
-        display.display(true, dark_mode);
-        delay(2000);
-        break;
-      
-      case CUSTOMBLE_CONNECTED:
-        display.fillScreen(BACKGROUND_COLOUR);
-        display.setFont(&FreeMonoBold9pt7b);
-        display.setTextColor(FOREGROUND_COLOUR);
-        display.setCursor(20, 30);
-        display.println("CONNECTED");
-        display.display(true, dark_mode);
-        break;
+    switch (status)
+    {
+    case CUSTOMBLE_READY:
+      display.fillScreen(BACKGROUND_COLOUR);
+      display.setFont(&FreeMonoBold9pt7b);
+      display.setTextColor(FOREGROUND_COLOUR);
+      display.setCursor(20, 30);
+      display.println("DISCOVERABLE");
+      customDisplay(true);
+      delay(2000);
+      break;
 
-      case CUSTOMBLE_DISCONNECTED:
-        display.fillScreen(BACKGROUND_COLOUR);
-        display.setFont(&FreeMonoBold9pt7b);
-        display.setTextColor(FOREGROUND_COLOUR);
-        display.setCursor(20, 30);
-        display.println("DISCONNECTED");
-        display.display(true, dark_mode);
-        break;
-      
-      case CUSTOMBLE_UPDATING:
-        display.fillScreen(BACKGROUND_COLOUR);
-        display.setFont(&FreeMonoBold9pt7b);
-        display.setTextColor(FOREGROUND_COLOUR);
-        display.setCursor(20, 30);
-        display.println("SYNCING");
-        display.display(true, dark_mode);
-        break;
+    case CUSTOMBLE_CONNECTED:
+      display.fillScreen(BACKGROUND_COLOUR);
+      display.setFont(&FreeMonoBold9pt7b);
+      display.setTextColor(FOREGROUND_COLOUR);
+      display.setCursor(20, 30);
+      display.println("CONNECTED");
+      customDisplay(true);
+      break;
+
+    case CUSTOMBLE_DISCONNECTED:
+      display.fillScreen(BACKGROUND_COLOUR);
+      display.setFont(&FreeMonoBold9pt7b);
+      display.setTextColor(FOREGROUND_COLOUR);
+      display.setCursor(20, 30);
+      display.println("DISCONNECTED");
+      customDisplay(true);
+      break;
+
+    case CUSTOMBLE_UPDATING:
+      display.fillScreen(BACKGROUND_COLOUR);
+      display.setFont(&FreeMonoBold9pt7b);
+      display.setTextColor(FOREGROUND_COLOUR);
+      display.setCursor(20, 30);
+      display.println("SYNCING");
+      customDisplay(true);
+      break;
     }
     delay(100);
   }
