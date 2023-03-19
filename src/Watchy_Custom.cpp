@@ -402,7 +402,7 @@ void WatchyCustom::handleButtonPress()
   {
     if (IS_BTN_LEFT_DOWN)
     {
-      switch (menuIndex)
+      switch (mainMenuIndex)
       {
       case 0:
         showAbout();

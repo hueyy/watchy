@@ -65,6 +65,7 @@ Follow the steps for Arduino above and set `arduino.path` to the folder containi
 See [SQFMI's docs](https://watchy.sqfmi.com/docs/getting-started).
 
 ```
+pio device list
 pio run -t upload -t monitor
 ```
 

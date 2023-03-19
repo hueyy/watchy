@@ -108,6 +108,14 @@ public:
   void setTime();
   void showAbout();
 
+  // WiFi
+  void setupWifi();
+  void showWiFiConnectingScreen();
+  void showWiFiFailedScreen();
+  bool connectToWiFi();
+  void syncTime();
+  void doWiFiUpdate();
+
   // BLE
   void bleConnect();
   void bleBegin();
@@ -151,15 +159,11 @@ public:
   void vibrate(uint8_t times, uint32_t delay);
   void vibrateTime();
 
-  void showWiFiConnectingScreen();
-  bool connectToWiFi();
-
-  void syncTime();
-  void doWiFiUpdate();
-
   void handleButtonPress();
 
+private:
   void _bmaConfig();
+  static void _configModeCallback(WiFiManager *myWiFiManager);
   static uint16_t _readRegister(uint8_t address, uint8_t reg, uint8_t *data, uint16_t len);
   static uint16_t _writeRegister(uint8_t address, uint8_t reg, uint8_t *data, uint16_t len);
 };
