@@ -3,34 +3,36 @@
 RTC_DATA_ATTR bool dark_mode = false;
 RTC_DATA_ATTR bool sleep_mode = false;
 
-RTC_DATA_ATTR uint8_t watchfacesMenuIndex;
-RTC_DATA_ATTR int8_t watchface_index = 0;
-RTC_DATA_ATTR int8_t timeSyncCounter = UPDATE_INTERVAL;
-RTC_DATA_ATTR int8_t sgWeatherCounter = UPDATE_INTERVAL;
+RTC_DATA_ATTR uint8_t watchface_index = 0;
 RTC_DATA_ATTR unsigned long pressedDuration = 0;
+RTC_DATA_ATTR uint8_t mainMenuIndex = 0;
+RTC_DATA_ATTR uint8_t watchfacesMenuIndex = 0;
 
 const uint16_t SHORT_PRESS_TIME = 500;
+const uint8_t MENU_TOP_MARGIN = 20;
 
-const char *menuItems[] = {
+const char *MAIN_MENU_ITEMS[] = {
+    "About",
+    "WiFi Sync",
+    "Toggle Dark Mode",
     "Check Battery",
     "Vibrate Motor",
     "Show Accelerometer",
-    "Toggle Dark Mode",
     "Set Time",
-    "About",
     "Setup WiFi",
     "Update Firmware"};
-int16_t menuOptions = sizeof(menuItems) / sizeof(menuItems[0]);
+const uint8_t MAIN_MENU_ITEMS_LENGTH = 9;
 
-int8_t max_watchfaces_count = 6;
-const char *watchfacesMenu[] = {
+const char *WATCHFACES_MENU_ITEMS[] = {
     "Lupine",
     "BigTime",
     "Prose",
     "Cluckent",
     "Cowsay",
     "Standard"};
-int16_t watchfacesMenuOptions = sizeof(watchfacesMenu) / sizeof(watchfacesMenu[0]);
+const uint8_t WATCHFACES_MENU_ITEMS_LENGTH = 6;
+
+const uint8_t MAX_VISIBLE_MENU_OPTIONS = 8;
 
 void WatchyCustom::customDisplay(bool partialUpdate)
 {
@@ -106,6 +108,7 @@ void WatchyCustom::init(String datetime)
     RTC.config(datetime);
     _bmaConfig();
     RTC.read(currentTime);
+    RTC.read(bootTime);
     showWatchFace(false); // full update on reset
     break;
   }
@@ -114,7 +117,7 @@ void WatchyCustom::init(String datetime)
 
 void WatchyCustom::bumpWatchFaceIndex()
 {
-  if (watchface_index == max_watchfaces_count)
+  if (watchface_index == WATCHFACES_MENU_ITEMS_LENGTH)
   {
     watchface_index = 0;
   }
@@ -237,86 +240,6 @@ void WatchyCustom::vibrateTime()
   vibrate((currentTime.Minute + 14) / 15, 500);
 }
 
-bool WatchyCustom::connectToWiFi()
-{
-  int remaining_tries = 3;
-  WIFI_CONFIGURED = false;
-
-  while (remaining_tries > 0)
-  {
-    for (unsigned int i = 0; i < 2; i++)
-    {
-      const char *ssid = i == 0 ? WIFI_SSID1
-                                : WIFI_SSID2;
-      const char *pass = i == 0 ? WIFI_PASS1
-                                : WIFI_PASS2;
-      Serial.println("Attempt to connect to WiFi: " + String(ssid) + " | " + String(pass));
-      WiFi.begin(ssid, pass);
-      Serial.println("WiFi began");
-      WIFI_CONFIGURED = (WiFi.waitForConnectResult() == WL_CONNECTED);
-
-      if (WIFI_CONFIGURED)
-      {
-        break;
-      }
-    }
-
-    if (WIFI_CONFIGURED)
-    {
-      break;
-    }
-    remaining_tries--;
-  }
-
-  Serial.println("WIFI_CONFIGURED: " + WIFI_CONFIGURED);
-  return WIFI_CONFIGURED;
-}
-
-void WatchyCustom::showWiFiConnectingScreen()
-{
-  display.fillScreen(FOREGROUND_COLOUR);
-  display.setTextColor(FOREGROUND_COLOUR);
-  display.setFont(&Helvetica14pt7b);
-  printCentered(100, "Connecting to WiFi...");
-}
-
-void WatchyCustom::doWiFiUpdate()
-{
-  // update all the things that should be updated via WiFi
-  bool shouldSyncTime = timeSyncCounter >= UPDATE_INTERVAL && UPDATE_INTERVAL != 0;
-  bool shouldGetWeather = sgWeatherCounter >= UPDATE_INTERVAL && UPDATE_INTERVAL != 0;
-  bool wifiNeeded = shouldSyncTime && shouldGetWeather;
-
-  if (wifiNeeded)
-  {
-    showWiFiConnectingScreen();
-    connectToWiFi();
-    showWatchFace(false);
-  }
-
-  if (!WIFI_CONFIGURED)
-  {
-    Serial.println("Failed to connect to WiFi");
-    return;
-  }
-
-  if (shouldSyncTime)
-  {
-    Watchy::syncNTP();
-    timeSyncCounter = 0;
-  }
-
-  if (shouldGetWeather)
-  {
-    getSGWeather();
-    sgWeatherCounter = 0;
-  }
-
-  WIFI_CONFIGURED = false;
-  WiFi.disconnect();
-  WiFi.mode(WIFI_OFF);
-}
-
 void WatchyCustom::showWatchFace(bool partialRefresh)
 {
   display.init(0, false);
@@ -327,8 +250,20 @@ void WatchyCustom::showWatchFace(bool partialRefresh)
   guiState = WATCHFACE_STATE;
 }
 
-void WatchyCustom::showMenu(byte menuIndex, bool partialRefresh)
+void WatchyCustom::showMenu(const char *menuItems[],
+                            const uint8_t menuItemsLength,
+                            int newGuiState,
+                            uint8_t menuIndex,
+                            bool partialRefresh)
 {
+  if (DEBUG_MODE)
+  {
+    Serial.print("menuIndex: ");
+    Serial.println(menuIndex);
+  }
+
+  const uint8_t maxVisible = min(MAX_VISIBLE_MENU_OPTIONS, menuItemsLength);
+
   // https://gitlab.com/astory024/watchy/-/blob/master/src/Watchy.cpp
   display.init(0, false); //_initial_refresh to false to prevent full update on init
   display.setFullWindow();
@@ -341,22 +276,26 @@ void WatchyCustom::showMenu(byte menuIndex, bool partialRefresh)
   int16_t startPos = 0;
 
   // Code to move the menu if current selected index out of bounds
-  if (menuIndex + menuOptions > menuOptions)
+  if (menuIndex + maxVisible > menuItemsLength)
   {
-    startPos = (menuOptions - 1) - (menuOptions - 1);
+    startPos = (menuItemsLength - 1) - (maxVisible - 1);
   }
   else
   {
     startPos = menuIndex;
   }
-  for (int i = startPos; i < menuOptions + startPos; i++)
+  for (int i = startPos; i < maxVisible + startPos; i++)
   {
-    yPos = 30 + (MENU_HEIGHT * (i - startPos));
+    yPos = MENU_TOP_MARGIN + (MENU_HEIGHT * (i - startPos));
     display.setCursor(0, yPos);
     if (i == menuIndex)
     {
-      display.getTextBounds(menuItems[i], 0, yPos, &x1, &y1, &w, &h);
-      display.fillRect(x1 - 1, y1 - 10, 200, h + 15, FOREGROUND_COLOUR);
+      display.getTextBounds(menuItems[i], 0, yPos,
+                            &x1, &y1, &w, &h);
+      display.fillRect(x1 - 1,
+                       y1 - 10, 200,
+                       h + 15,
+                       FOREGROUND_COLOUR);
       display.setTextColor(BACKGROUND_COLOUR);
       display.println(menuItems[i]);
     }
@@ -369,56 +308,25 @@ void WatchyCustom::showMenu(byte menuIndex, bool partialRefresh)
 
   customDisplay(partialRefresh);
 
-  guiState = MAIN_MENU_STATE;
+  guiState = newGuiState;
 }
 
-void WatchyCustom::showWatchFacesMenu(byte menuIndex, bool partialRefresh)
+void WatchyCustom::showMainMenu(bool partialRefresh)
 {
-  display.init(0, false);
-  display.setFullWindow();
-  display.fillScreen(BACKGROUND_COLOUR);
-  display.setFont(&FreeMonoBold9pt7b);
-
-  int16_t x1, y1;
-  uint16_t w, h;
-  int16_t yPos;
-  int16_t startPos = 0;
-
-  if (menuIndex + watchfacesMenuOptions > watchfacesMenuOptions)
-  {
-    startPos = (watchfacesMenuOptions - 1) - (watchfacesMenuOptions - 1);
-  }
-  else
-  {
-    startPos = menuIndex;
-  }
-  for (int i = startPos; i < watchfacesMenuOptions + startPos; i++)
-  {
-    yPos = 30 + (MENU_HEIGHT * (i - startPos));
-    display.setCursor(0, yPos);
-    if (i == menuIndex)
-    {
-      display.getTextBounds(watchfacesMenu[i], 0, yPos, &x1, &y1, &w, &h);
-      display.fillRect(x1 - 1, y1 - 10, 200, h + 15, FOREGROUND_COLOUR);
-      display.setTextColor(BACKGROUND_COLOUR);
-      display.println(watchfacesMenu[i]);
-    }
-    else
-    {
-      display.setTextColor(FOREGROUND_COLOUR);
-      display.println(watchfacesMenu[i]);
-    }
-  }
-
-  customDisplay(partialRefresh);
-
-  guiState = WATCHFACES_MENU_STATE;
+  showMenu(MAIN_MENU_ITEMS,
+           MAIN_MENU_ITEMS_LENGTH,
+           MAIN_MENU_STATE,
+           mainMenuIndex,
+           partialRefresh);
 }
 
-void WatchyCustom::toggleDarkMode()
+void WatchyCustom::showWatchFacesMenu(bool partialRefresh)
 {
-  dark_mode = !dark_mode;
-  showMenu(menuIndex, false);
+  showMenu(WATCHFACES_MENU_ITEMS,
+           WATCHFACES_MENU_ITEMS_LENGTH,
+           WATCHFACES_MENU_STATE,
+           watchfacesMenuIndex,
+           partialRefresh);
 }
 
 bool pressEnded = false;
@@ -426,6 +334,10 @@ bool pressEnded = false;
 void WatchyCustom::handleButtonPress()
 {
   uint64_t wakeupBit = esp_sleep_get_ext1_wakeup_status();
+  if (DEBUG_MODE)
+  {
+    Serial.println("wakeupBit: " + wakeupBit);
+  }
 
   if (guiState == WATCHFACE_STATE)
   {
@@ -471,18 +383,18 @@ void WatchyCustom::handleButtonPress()
       // RTC.alarm(ALARM_2);
       // RTC.read(currentTime);
       // showWatchFace(false);
-      showWatchFacesMenu(watchfacesMenuIndex, true);
+      showWatchFacesMenu(true);
       return;
     }
     else if (IS_BTN_LEFT_UP)
     {
       // bleConnect();
-      doWiFiUpdate();
+      // doWiFiUpdate();
       return;
     }
     else if (IS_BTN_LEFT_DOWN)
     {
-      showMenu(menuIndex, true);
+      showMainMenu(true);
       return;
     }
   }
@@ -493,29 +405,31 @@ void WatchyCustom::handleButtonPress()
       switch (menuIndex)
       {
       case 0:
-        showBattery();
+        showAbout();
         break;
       case 1:
-        showBuzz();
+        doWiFiUpdate();
         break;
       case 2:
-        Watchy::showAccelerometer();
-        break;
-      case 3:
         toggleDarkMode();
         break;
+      case 3:
+        showBattery();
+        break;
       case 4:
-        Watchy::setTime();
+        showBuzz();
         break;
       case 5:
-        Watchy::showAbout();
+        Watchy::showAccelerometer();
         break;
       case 6:
-        Watchy::setupWifi();
+        Watchy::setTime();
         break;
       case 7:
-        Watchy::showUpdateFW();
+        setupWifi();
         break;
+      case 8:
+        Watchy::showUpdateFW();
       default:
         break;
       }
@@ -523,21 +437,21 @@ void WatchyCustom::handleButtonPress()
     }
     else if (IS_BTN_RIGHT_UP)
     {
-      menuIndex--;
-      if (menuIndex < 0)
+      mainMenuIndex--;
+      if (mainMenuIndex < 0)
       {
-        menuIndex = menuOptions - 1;
+        mainMenuIndex = MAX_VISIBLE_MENU_OPTIONS - 1;
       }
-      showMenu(menuIndex, true);
+      showMainMenu(true);
     }
     else if (IS_BTN_RIGHT_DOWN)
     {
-      menuIndex++;
-      if (menuIndex >= menuOptions)
+      mainMenuIndex++;
+      if (mainMenuIndex >= MAX_VISIBLE_MENU_OPTIONS)
       {
-        menuIndex = 0;
+        mainMenuIndex = 0;
       }
-      showMenu(menuIndex, true);
+      showMainMenu(true);
     }
     else if (IS_BTN_LEFT_UP)
     {
@@ -559,18 +473,18 @@ void WatchyCustom::handleButtonPress()
       watchfacesMenuIndex--;
       if (watchfacesMenuIndex < 0)
       {
-        watchfacesMenuIndex = watchfacesMenuOptions - 1;
+        watchfacesMenuIndex = MAX_VISIBLE_MENU_OPTIONS - 1;
       }
-      showWatchFacesMenu(watchfacesMenuIndex, true);
+      showWatchFacesMenu(true);
     }
     else if (IS_BTN_RIGHT_DOWN)
     {
       watchfacesMenuIndex++;
-      if (watchfacesMenuIndex >= watchfacesMenuOptions)
+      if (watchfacesMenuIndex >= MAX_VISIBLE_MENU_OPTIONS)
       {
         watchfacesMenuIndex = 0;
       }
-      showWatchFacesMenu(watchfacesMenuIndex, true);
+      showWatchFacesMenu(true);
     }
     else if (IS_BTN_LEFT_UP)
     {
@@ -591,7 +505,7 @@ void WatchyCustom::handleButtonPress()
   {
     if (IS_BTN_LEFT_UP)
     {
-      showMenu(menuIndex, true);
+      showMainMenu(true);
       return;
     }
   }

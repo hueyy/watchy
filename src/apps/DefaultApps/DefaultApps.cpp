@@ -1,5 +1,11 @@
 #include "../../Watchy_Custom.h"
 
+void WatchyCustom::toggleDarkMode()
+{
+  dark_mode = !dark_mode;
+  showMainMenu(false);
+}
+
 void WatchyCustom::showBattery()
 {
   display.init(0, false); //_initial_refresh to false to prevent full update on init
@@ -29,7 +35,7 @@ void WatchyCustom::showBuzz()
   display.println("Buzz!");
   customDisplay(false);
   Watchy::vibMotor();
-  showMenu(menuIndex, false);
+  showMainMenu(false);
 }
 
 void WatchyCustom::setTime()
@@ -209,7 +215,7 @@ void WatchyCustom::setTime()
 
   RTC.set(tm);
 
-  showMenu(menuIndex, false);
+  showMainMenu(false);
 }
 
 void WatchyCustom::bleConnect()
@@ -277,5 +283,45 @@ void WatchyCustom::bleConnect()
 
   WiFi.mode(WIFI_OFF);
   btStop();
-  showMenu(menuIndex, false);
+  showMainMenu(false);
+}
+
+void WatchyCustom::showAbout()
+{
+  display.setFullWindow();
+  display.fillScreen(BACKGROUND_COLOUR);
+  display.setFont(&FreeMonoBold9pt7b);
+  display.setTextColor(FOREGROUND_COLOUR);
+  display.setCursor(0, 20);
+
+  display.print("LibVer: ");
+  display.println(WATCHY_LIB_VER);
+
+  const char *RTC_HW[3] = {"<UNKNOWN>", "DS3231", "PCF8563"};
+  display.print("RTC: ");
+  display.println(RTC_HW[RTC.rtcType]); // 0 = UNKNOWN, 1 = DS3231, 2 = PCF8563
+
+  display.print("Batt: ");
+  float voltage = getBatteryVoltage();
+  display.print(voltage);
+  display.println("V");
+
+  display.print("Uptime: ");
+  RTC.read(currentTime);
+  time_t b = makeTime(bootTime);
+  time_t c = makeTime(currentTime);
+  int totalSeconds = c - b;
+  // int seconds = (totalSeconds % 60);
+  int minutes = (totalSeconds % 3600) / 60;
+  int hours = (totalSeconds % 86400) / 3600;
+  int days = (totalSeconds % (86400 * 30)) / 86400;
+  display.print(days);
+  display.print("d");
+  display.print(hours);
+  display.print("h");
+  display.print(minutes);
+  display.print("m");
+  display.display(false); // full refresh
+
+  guiState = APP_STATE;
 }

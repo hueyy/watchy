@@ -64,6 +64,10 @@ Follow the steps for Arduino above and set `arduino.path` to the folder containi
 
 See [SQFMI's docs](https://watchy.sqfmi.com/docs/getting-started).
 
+```
+pio run -t upload -t monitor
+```
+
 ## Development
 
 It is probably wise to design a watchface in Paint.NET / Photoshop first before writing the display code because of the long feedback loop. There's no hot reloading 😢. The screen is 200px x 200px and the DPI is 141.
