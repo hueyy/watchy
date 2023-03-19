@@ -29,8 +29,9 @@ const char *WATCHFACES_MENU_ITEMS[] = {
     "Prose",
     "Cluckent",
     "Cowsay",
+    "Countdown",
     "Standard"};
-const uint8_t WATCHFACES_MENU_ITEMS_LENGTH = 6;
+const uint8_t WATCHFACES_MENU_ITEMS_LENGTH = 7;
 
 const uint8_t MAX_VISIBLE_MENU_OPTIONS = 8;
 
@@ -166,6 +167,9 @@ void WatchyCustom::drawWatchFace()
     break;
   case 4:
     cowsayDrawWatchFace();
+    break;
+  case 5:
+    countdownDrawWatchFace();
     break;
   default:
     Watchy::drawWatchFace();

@@ -142,6 +142,11 @@ public:
   // Cowsay
   void cowsayDrawWatchFace();
 
+  // Countdown
+  void countdownDrawWatchFace();
+  void countdownDrawTime(const time_t remainingTime);
+  void countdownDrawProgressBox(const time_t remainingTime);
+
   // apps
   // weather
   void getSGWeather();
