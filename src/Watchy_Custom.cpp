@@ -15,13 +15,14 @@ const char *MAIN_MENU_ITEMS[] = {
     "About",
     "WiFi Sync",
     "Toggle Dark Mode",
+    "Sleep Mode",
     "Check Battery",
     "Vibrate Motor",
     "Show Accelerometer",
     "Set Time",
     "Setup WiFi",
     "Update Firmware"};
-const uint8_t MAIN_MENU_ITEMS_LENGTH = 9;
+const uint8_t MAIN_MENU_ITEMS_LENGTH = 10;
 
 const char *WATCHFACES_MENU_ITEMS[] = {
     "Lupine",
@@ -86,10 +87,12 @@ void WatchyCustom::init(String datetime)
       RTC.read(currentTime);
       if (currentTime.Hour == SLEEP_HOUR_START && currentTime.Minute == SLEEP_MINUTE_START)
       {
-        sleep_mode = true;
-        interruptAlarm(false);
+        enterSleepMode();
       }
-      showWatchFace(true); // partial updates on tick
+      else
+      {
+        showWatchFace(true); // partial updates on tick
+      }
     }
     break;
   case ESP_SLEEP_WAKEUP_EXT1:
@@ -136,6 +139,13 @@ void WatchyCustom::disableWatchFace()
 bool WatchyCustom::getSleepMode()
 {
   return sleep_mode;
+}
+
+void WatchyCustom::enterSleepMode()
+{
+  sleep_mode = true;
+  interruptAlarm(false);
+  showWatchFace(false); // partial updates on tick
 }
 
 void WatchyCustom::drawSleepScreen()
@@ -418,22 +428,26 @@ void WatchyCustom::handleButtonPress()
         toggleDarkMode();
         break;
       case 3:
-        showBattery();
+        enterSleepMode();
         break;
       case 4:
-        showBuzz();
+        showBattery();
         break;
       case 5:
-        Watchy::showAccelerometer();
+        showBuzz();
         break;
       case 6:
-        Watchy::setTime();
+        Watchy::showAccelerometer();
         break;
       case 7:
-        setupWifi();
+        Watchy::setTime();
         break;
       case 8:
+        setupWifi();
+        break;
+      case 9:
         Watchy::showUpdateFW();
+        break;
       default:
         break;
       }

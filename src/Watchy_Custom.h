@@ -88,6 +88,7 @@ public:
   String zeroPad(uint8_t inputNum);
   String getValue(String data, char separator, int index);
 
+  void enterSleepMode();
   void drawSleepScreen();
   void drawWatchFace();
   void showWatchFace(bool partialRefresh);
