@@ -1,9 +1,9 @@
 #include "Watchy_Custom.h"
 
-RTC_DATA_ATTR bool dark_mode = false;
+RTC_DATA_ATTR bool dark_mode = true;
 RTC_DATA_ATTR bool sleep_mode = false;
 
-RTC_DATA_ATTR uint8_t watchface_index = 0;
+RTC_DATA_ATTR uint8_t watchface_index = 7;
 RTC_DATA_ATTR unsigned long pressedDuration = 0;
 RTC_DATA_ATTR uint8_t mainMenuIndex = 0;
 RTC_DATA_ATTR uint8_t watchfacesMenuIndex = 0;
@@ -25,14 +25,16 @@ const char *MAIN_MENU_ITEMS[] = {
 const uint8_t MAIN_MENU_ITEMS_LENGTH = 10;
 
 const char *WATCHFACES_MENU_ITEMS[] = {
-    "Lupine",
-    "BigTime",
-    "Prose",
+    "Big Time",
     "Cluckent",
-    "Cowsay",
     "Countdown",
-    "Standard"};
-const uint8_t WATCHFACES_MENU_ITEMS_LENGTH = 7;
+    "Cowsay",
+    "Lupine",
+    "Prose",
+    "Standard",
+    "Very Big Time",
+};
+const uint8_t WATCHFACES_MENU_ITEMS_LENGTH = 8;
 
 const uint8_t MAX_VISIBLE_MENU_OPTIONS = 8;
 
@@ -164,26 +166,31 @@ void WatchyCustom::drawWatchFace()
   switch (watchface_index)
   {
   case 0:
-    lupineDrawWatchFace();
-    break;
-  case 1:
     bigTimeDrawWatchFace();
     break;
-  case 2:
-    proseDrawWatchFace();
-    break;
-  case 3:
+  case 1:
     cluckentDrawWatchFace();
     break;
-  case 4:
+  case 2:
+    countdownDrawWatchFace();
+    break;
+  case 3:
     cowsayDrawWatchFace();
     break;
+  case 4:
+    lupineDrawWatchFace();
+    break;
   case 5:
-    countdownDrawWatchFace();
+    proseDrawWatchFace();
+    break;
+  case 6:
+    Watchy::drawWatchFace();
+    break;
+  case 7:
+    veryBigTimeDrawWatchFace();
     break;
   default:
     Watchy::drawWatchFace();
-    break;
   }
 }
 
@@ -359,10 +366,8 @@ void WatchyCustom::handleButtonPress()
       Serial.println("BUTTON PRESS ON WATCHFACE_STATE");
     if (IS_BTN_RIGHT_UP)
     {
-      if (DEBUG_MODE)
-        Serial.println("vibrateTime");
-      RTC.read(currentTime);
-      vibrateTime();
+      // button does not work
+      // may be a hardware issue
       return;
     }
     else if (IS_BTN_RIGHT_DOWN)
@@ -402,8 +407,12 @@ void WatchyCustom::handleButtonPress()
     }
     else if (IS_BTN_LEFT_UP)
     {
-      // bleConnect();
-      // doWiFiUpdate();
+      if (DEBUG_MODE)
+      {
+        Serial.println("vibrateTime");
+      }
+      RTC.read(currentTime);
+      vibrateTime();
       return;
     }
     else if (IS_BTN_LEFT_DOWN)

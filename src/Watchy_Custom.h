@@ -84,7 +84,7 @@ public:
 
   void drawHelperGrid();
   void printCentered(uint16_t y, String text);
-  void printRight(uint16_t y, String text);
+  void printRight(uint16_t y, uint16_t xMargin, String text);
   String zeroPad(uint8_t inputNum);
   String getValue(String data, char separator, int index);
 
@@ -147,6 +147,9 @@ public:
   void countdownDrawWatchFace();
   void countdownDrawTime(const time_t remainingTime);
   void countdownDrawProgressBox(const time_t remainingTime);
+
+  // Very Big Time
+  void veryBigTimeDrawWatchFace();
 
   // apps
   // weather

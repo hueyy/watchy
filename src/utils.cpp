@@ -140,13 +140,13 @@ void WatchyCustom::printCentered(uint16_t y, String text)
 }
 
 // text-align: right
-void WatchyCustom::printRight(uint16_t y, String text)
+void WatchyCustom::printRight(uint16_t y, uint16_t xMargin, String text)
 {
   int16_t x1, y1;
   uint16_t w, h;
 
-  display.getTextBounds(text, 100, 100, &x1, &y1, &w, &h);
-  display.setCursor(200 - w, y);
+  display.getTextBounds(text, 100, 0, &x1, &y1, &w, &h);
+  display.setCursor(200 - w - xMargin, y);
   display.println(text);
 }
 
