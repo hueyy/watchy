@@ -21,8 +21,8 @@ const unsigned char *numbers[10] = {mario0, mario1, mario2, mario3, mario4, mari
 
 void WatchyCustom::drawMarioWatchFace()
 {
-  display.fillScreen(GxEPD_WHITE);
-  display.drawBitmap(0, 0, mariobg, DISPLAY_WIDTH, DISPLAY_HEIGHT, GxEPD_BLACK);
+  display.fillScreen(BACKGROUND_COLOUR);
+  display.drawBitmap(0, 0, mariobg, DISPLAY_WIDTH, DISPLAY_HEIGHT, FOREGROUND_COLOUR);
 
   int hour10 = currentTime.Hour / 10;
   int hour01 = currentTime.Hour % 10;
@@ -48,28 +48,28 @@ void WatchyCustom::drawMarioWatchFace()
     pos = 3;
   }
 
-  display.drawBitmap(X_PADDING + pos * (NUM_SPACING + NUM_W) + (NUM_W / 2 - MARIO_W / 2) + (pos < 2 ? 8 : -8), Y_PADDING + NUM_H + 4, pos < 2 ? mariomariol : mariomarior, MARIO_W, MARIO_H, GxEPD_BLACK); // mario
-  display.drawBitmap(X_PADDING + pos * (NUM_SPACING + NUM_W) + (NUM_W / 2 - COIN_W / 2), COIN_SPACING, mariocoin, COIN_W, COIN_H, GxEPD_BLACK);                                                            // coin
+  display.drawBitmap(X_PADDING + pos * (NUM_SPACING + NUM_W) + (NUM_W / 2 - MARIO_W / 2) + (pos < 2 ? 8 : -8), Y_PADDING + NUM_H + 4, pos < 2 ? mariomariol : mariomarior, MARIO_W, MARIO_H, FOREGROUND_COLOUR); // mario
+  display.drawBitmap(X_PADDING + pos * (NUM_SPACING + NUM_W) + (NUM_W / 2 - COIN_W / 2), COIN_SPACING, mariocoin, COIN_W, COIN_H, FOREGROUND_COLOUR);                                                            // coin
 
   if (pos == 0)
   {
-    display.drawBitmap(DISPLAY_WIDTH - 2 * PIPE_W, PIPE_PADDING, mariopipe, PIPE_W, PIPE_H, GxEPD_BLACK); // pipe
+    display.drawBitmap(DISPLAY_WIDTH - 2 * PIPE_W, PIPE_PADDING, mariopipe, PIPE_W, PIPE_H, FOREGROUND_COLOUR); // pipe
   }
   else if (pos == 1 || pos == 2)
   {
-    display.drawBitmap(X_PADDING, PIPE_PADDING, mariopipe, PIPE_W, PIPE_H, GxEPD_BLACK);                          // pipe
-    display.drawBitmap(DISPLAY_WIDTH - PIPE_W - X_PADDING, PIPE_PADDING, mariopipe, PIPE_W, PIPE_H, GxEPD_BLACK); // pipe
+    display.drawBitmap(X_PADDING, PIPE_PADDING, mariopipe, PIPE_W, PIPE_H, FOREGROUND_COLOUR);                          // pipe
+    display.drawBitmap(DISPLAY_WIDTH - PIPE_W - X_PADDING, PIPE_PADDING, mariopipe, PIPE_W, PIPE_H, FOREGROUND_COLOUR); // pipe
   }
   else
   {
-    display.drawBitmap(2 * PIPE_W, PIPE_PADDING, mariopipe, PIPE_W, PIPE_H, GxEPD_BLACK); // pipe
+    display.drawBitmap(2 * PIPE_W, PIPE_PADDING, mariopipe, PIPE_W, PIPE_H, FOREGROUND_COLOUR); // pipe
   }
 
   // Hour
-  display.drawBitmap(X_PADDING, pos == 0 ? Y_PADDING : Y_PADDING + 20, numbers[hour10], NUM_W, NUM_H, GxEPD_BLACK);                       // first digit
-  display.drawBitmap(X_PADDING + NUM_SPACING + NUM_W, pos == 1 ? Y_PADDING : Y_PADDING + 20, numbers[hour01], NUM_W, NUM_H, GxEPD_BLACK); // second digit
+  display.drawBitmap(X_PADDING, pos == 0 ? Y_PADDING : Y_PADDING + 20, numbers[hour10], NUM_W, NUM_H, FOREGROUND_COLOUR);                       // first digit
+  display.drawBitmap(X_PADDING + NUM_SPACING + NUM_W, pos == 1 ? Y_PADDING : Y_PADDING + 20, numbers[hour01], NUM_W, NUM_H, FOREGROUND_COLOUR); // second digit
 
   // Minute
-  display.drawBitmap(X_PADDING + 2 * (NUM_SPACING + NUM_W), pos == 2 ? Y_PADDING : Y_PADDING + 20, numbers[minute10], NUM_W, NUM_H, GxEPD_BLACK); // first digit
-  display.drawBitmap(X_PADDING + 3 * (NUM_SPACING + NUM_W), pos == 3 ? Y_PADDING : Y_PADDING + 20, numbers[minute01], NUM_W, NUM_H, GxEPD_BLACK); // second digit
+  display.drawBitmap(X_PADDING + 2 * (NUM_SPACING + NUM_W), pos == 2 ? Y_PADDING : Y_PADDING + 20, numbers[minute10], NUM_W, NUM_H, FOREGROUND_COLOUR); // first digit
+  display.drawBitmap(X_PADDING + 3 * (NUM_SPACING + NUM_W), pos == 3 ? Y_PADDING : Y_PADDING + 20, numbers[minute01], NUM_W, NUM_H, FOREGROUND_COLOUR); // second digit
 }

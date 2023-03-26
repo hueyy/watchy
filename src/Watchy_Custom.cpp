@@ -475,14 +475,14 @@ void WatchyCustom::handleButtonPress()
       mainMenuIndex--;
       if (mainMenuIndex < 0)
       {
-        mainMenuIndex = MAX_VISIBLE_MENU_OPTIONS - 1;
+        mainMenuIndex = MAIN_MENU_ITEMS_LENGTH - 1;
       }
       showMainMenu(true);
     }
     else if (IS_BTN_RIGHT_DOWN)
     {
       mainMenuIndex++;
-      if (mainMenuIndex >= MAX_VISIBLE_MENU_OPTIONS)
+      if (mainMenuIndex >= MAIN_MENU_ITEMS_LENGTH)
       {
         mainMenuIndex = 0;
       }
@@ -508,14 +508,14 @@ void WatchyCustom::handleButtonPress()
       watchfacesMenuIndex--;
       if (watchfacesMenuIndex < 0)
       {
-        watchfacesMenuIndex = MAX_VISIBLE_MENU_OPTIONS - 1;
+        watchfacesMenuIndex = WATCHFACES_MENU_ITEMS_LENGTH - 1;
       }
       showWatchFacesMenu(true);
     }
     else if (IS_BTN_RIGHT_DOWN)
     {
       watchfacesMenuIndex++;
-      if (watchfacesMenuIndex >= MAX_VISIBLE_MENU_OPTIONS)
+      if (watchfacesMenuIndex >= WATCHFACES_MENU_ITEMS_LENGTH)
       {
         watchfacesMenuIndex = 0;
       }
