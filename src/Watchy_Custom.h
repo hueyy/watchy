@@ -122,6 +122,10 @@ public:
   void bleBegin();
   CustomBLEStatus bleStatus();
 
+  // Watchy built-in faces
+  void drawPokemonWatchFace();
+  void drawMarioWatchFace();
+
   // Lupine
   void lupineDrawWatchFace();
 

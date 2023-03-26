@@ -3,7 +3,7 @@
 RTC_DATA_ATTR bool dark_mode = true;
 RTC_DATA_ATTR bool sleep_mode = false;
 
-RTC_DATA_ATTR uint8_t watchface_index = 7;
+RTC_DATA_ATTR uint8_t watchface_index = 0;
 RTC_DATA_ATTR unsigned long pressedDuration = 0;
 RTC_DATA_ATTR uint8_t mainMenuIndex = 0;
 RTC_DATA_ATTR uint8_t watchfacesMenuIndex = 0;
@@ -30,11 +30,13 @@ const char *WATCHFACES_MENU_ITEMS[] = {
     "Countdown",
     "Cowsay",
     "Lupine",
+    "Mario",
+    "Pokemon",
     "Prose",
     "Standard",
     "Very Big Time",
 };
-const uint8_t WATCHFACES_MENU_ITEMS_LENGTH = 8;
+const uint8_t WATCHFACES_MENU_ITEMS_LENGTH = 10;
 
 const uint8_t MAX_VISIBLE_MENU_OPTIONS = 8;
 
@@ -181,12 +183,18 @@ void WatchyCustom::drawWatchFace()
     lupineDrawWatchFace();
     break;
   case 5:
-    proseDrawWatchFace();
+    drawMarioWatchFace();
     break;
   case 6:
-    Watchy::drawWatchFace();
+    drawPokemonWatchFace();
     break;
   case 7:
+    proseDrawWatchFace();
+    break;
+  case 8:
+    Watchy::drawWatchFace();
+    break;
+  case 9:
     veryBigTimeDrawWatchFace();
     break;
   default:
