@@ -4,7 +4,6 @@ RTC_DATA_ATTR bool dark_mode = true;
 RTC_DATA_ATTR bool sleep_mode = false;
 
 RTC_DATA_ATTR uint8_t watchface_index = 0;
-RTC_DATA_ATTR unsigned long pressedDuration = 0;
 RTC_DATA_ATTR uint8_t mainMenuIndex = 0;
 RTC_DATA_ATTR uint8_t watchfacesMenuIndex = 0;
 
@@ -35,10 +34,15 @@ const char *WATCHFACES_MENU_ITEMS[] = {
     "Prose",
     "Standard",
     "Very Big Time",
+    "WP",
 };
-const uint8_t WATCHFACES_MENU_ITEMS_LENGTH = 10;
+const uint8_t WATCHFACES_MENU_ITEMS_LENGTH = 11;
 
 const uint8_t MAX_VISIBLE_MENU_OPTIONS = 8;
+
+bool pressEnded = false;
+unsigned long pressedDuration = 0;
+unsigned long startPress = 0;
 
 void WatchyCustom::customDisplay(bool partialUpdate)
 {
@@ -196,6 +200,9 @@ void WatchyCustom::drawWatchFace()
     break;
   case 9:
     veryBigTimeDrawWatchFace();
+    break;
+  case 10:
+    WPDrawWatchFace();
     break;
   default:
     Watchy::drawWatchFace();
@@ -358,8 +365,6 @@ void WatchyCustom::showWatchFacesMenu(bool partialRefresh)
            partialRefresh);
 }
 
-bool pressEnded = false;
-
 void WatchyCustom::handleButtonPress()
 {
   uint64_t wakeupBit = esp_sleep_get_ext1_wakeup_status();
@@ -381,30 +386,6 @@ void WatchyCustom::handleButtonPress()
     else if (IS_BTN_RIGHT_DOWN)
     {
       // double tap is WIP
-      // unsigned long startPress = 0;
-
-      // if (pressedDuration == 0)
-      // {
-      //   startPress = millis();
-      //   Serial.print("New pressedTime: ");
-      //   Serial.println(startPress);
-      //   attachInterrupt(IS_BTN_RIGHT_DOWN, buttonTimerStop, FALLING); // use interrupt to stop button timer
-
-      //   while(true){
-      //     Serial.print("Millis: ");
-      //     Serial.println(millis());
-
-      //     if(pressEnded == true){
-      //       detachInterrupt(IS_BTN_RIGHT_DOWN);
-      //       pressEnded = false;
-      //       pressedDuration = millis() - startPress;
-      //       Serial.print("pressedDuration: ");
-      //       Serial.println(pressedDuration);
-      //       pressedDuration = 0;
-      //       break;
-      //     }
-      //   }
-      // }
 
       // bumpWatchFaceIndex();
       // RTC.alarm(ALARM_2);
@@ -415,6 +396,35 @@ void WatchyCustom::handleButtonPress()
     }
     else if (IS_BTN_LEFT_UP)
     {
+      // may need to override Watchy code
+      // if (pressedDuration == 0)
+      // {
+      //   attachInterrupt(IS_BTN_LEFT_UP, ISRButtonTimerStop, RISING); // use interrupt to stop button timer
+      //   startPress = millis();
+      //   Serial.print("New pressedTime: ");
+      //   Serial.println(startPress);
+
+      //   while (true)
+      //   {
+      //     // do nothing
+      //     if (pressEnded)
+      //     {
+      //       // end of press
+      //       detachInterrupt(IS_BTN_LEFT_UP);
+      //       Serial.print("pressedDuration: ");
+      //       Serial.println(pressedDuration);
+      //       pressEnded = false;
+      //       pressedDuration = 0;
+      //       break;
+      //     }
+      //     if ((millis() - startPress) > 3000)
+      //     {
+      //       // timeout
+      //       break;
+      //     }
+      //   }
+      // }
+
       if (DEBUG_MODE)
       {
         Serial.println("vibrateTime");
@@ -547,7 +557,8 @@ void WatchyCustom::handleButtonPress()
   // Watchy::handleButtonPress();
 }
 
-void buttonTimerStop()
+void ISRButtonTimerStop()
 {
   pressEnded = true;
+  pressedDuration = millis() - startPress;
 }

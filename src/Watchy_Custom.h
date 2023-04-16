@@ -155,6 +155,9 @@ public:
   // Very Big Time
   void veryBigTimeDrawWatchFace();
 
+  // WP
+  void WPDrawWatchFace();
+
   // apps
   // weather
   void getSGWeather();
@@ -181,6 +184,6 @@ private:
   static uint16_t _writeRegister(uint8_t address, uint8_t reg, uint8_t *data, uint16_t len);
 };
 
-void buttonTimerStop();
+void ISRButtonTimerStop();
 
 #endif

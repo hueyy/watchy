@@ -75,6 +75,7 @@ It is probably wise to design a watchface in Paint.NET / Photoshop first before 
 
 - [Fonts](https://rop.nl/truetype2gfx/)
 - [Images](https://javl.github.io/image2cpp/)
+  - For images with more than 2 colours, [it may be worth applying Floyd-Steinberg dithering first](https://doodad.dev/dither-me-this/)
 
 The docs for the display library can be found [here](https://learn.adafruit.com/adafruit-gfx-graphics-library/overview).
 
