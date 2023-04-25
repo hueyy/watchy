@@ -467,7 +467,7 @@ void WatchyCustom::handleButtonPress()
         Watchy::showAccelerometer();
         break;
       case 7:
-        Watchy::setTime();
+        setTime();
         break;
       case 8:
         setupWifi();
